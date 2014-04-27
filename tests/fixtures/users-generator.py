@@ -7,11 +7,11 @@ Created on 27 avr. 2014
 @author: SpaceFox
 '''
 
-NB_USERS = 100
+import settings as s
 
 f = open('users.yaml', 'w')
 
-for i in range(0, NB_USERS):
+for i in range(0, s.NB_USERS):
     f.write('-   model: auth.user\n')
     f.write('    pk: %d\n' % (i))
     f.write('    fields:\n')
