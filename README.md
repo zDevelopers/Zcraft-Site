@@ -87,12 +87,6 @@ Pour bénéficier de données de test, exécutez les commandes suivantes, dans l
 /usr/bin/env python2 manage.py loaddata fixtures/categories.yaml
 ```
 
-#### Pour robots
-Pour charger un maximum de données de manières automatique et sans limite (principalement pour des tests de charges), il faut parametrer le fichier `/zds/settings_prod.py`.
-Ce fichier contient un ensemble de paramètres qui vous permettront de charger votre base de manière personnalisée.
-
-Une fois que vos paramètres sont définis, il vous suffira de lancer le script `load-testing.bat` qui se trouve à la racine du projet.
-
 Cela va créer plusieurs entitées :
 
 * 3 utilisateurs (username/password) :
@@ -104,6 +98,13 @@ Cela va créer plusieurs entitées :
 * 3 topics with one answer
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
+
+
+#### Pour robots
+Pour charger un maximum de données de manières automatique et sans limite (principalement pour des tests de charges), il faut parametrer le fichier `/zds/settings_prod.py`.
+Ce fichier contient un ensemble de paramètres qui vous permettront de charger votre base de manière personnalisée.
+
+Une fois que vos paramètres sont définis, il vous suffira de lancer le script `load-testing.bat` qui se trouve à la racine du projet.
 
 ### Conseil de developpement
 
