@@ -68,3 +68,18 @@ class ProfileFactory(factory.DjangoModelFactory):
             self.user.username.lower())
 
     sign = 'Please look my flavour'
+
+class ProfileStaffFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Profile
+
+    user = factory.SubFactory(StaffFactory)
+
+    last_ip_address = '192.168.2.1'
+    site = 'www.zestedesavoir.com'
+
+    @factory.lazy_attribute
+    def biography(self):
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(
+            self.user.username.lower())
+
+    sign = 'Please look my flavour'
