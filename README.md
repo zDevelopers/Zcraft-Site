@@ -75,6 +75,8 @@ pip install --user -r requirements.txt
 
 
 ### Données de test
+
+#### Pour Humains
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
@@ -97,6 +99,13 @@ Cela va créer plusieurs entitées :
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
 
+
+#### Pour robots
+Pour charger un maximum de données de manières automatique et sans limite (principalement pour des tests de charges), il faut parametrer le fichier `/zds/settings_prod.py`.
+Ce fichier contient un ensemble de paramètres qui vous permettront de charger votre base de manière personnalisée.
+
+Une fois que vos paramètres sont définis, il vous suffira de lancer le script `load-testing.bat` qui se trouve à la racine du projet.
+
 ### Conseil de developpement
 
 Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant la suite complète :
@@ -104,6 +113,7 @@ Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires e
 ```console
 python manage.py test
 ```
+
 
 En savoir plus
 --------------
