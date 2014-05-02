@@ -331,15 +331,15 @@ def edit(request):
 @can_read_now
 def find_article(request, name):
     """Find an article from his author."""
-    user = get_object_or_404(User, username=name)
+    user = get_object_or_404(User, pk=name)
     articles = Article.objects\
-        .filter(author=user)\
+        .filter(authors__in=[user])\
         .order_by('-pubdate')\
         .all()
     # Paginator
 
     return render_template('article/find_article.html', {
-        'articles': articles, 'usr': u,
+        'articles': articles, 'usr': user,
     })
 
 
@@ -762,6 +762,8 @@ def answer(request):
         if 'cite' in request.GET:
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
+            if not reaction_cite.is_visible:
+                raise PermissionDenied
 
             for line in reaction_cite.text.splitlines():
                 text = text + '> ' + line + '\n'

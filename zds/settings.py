@@ -97,6 +97,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
+FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 # You will need yuglify to be installed
 PIPELINE_JS = {
     'main-js': {
@@ -183,15 +184,17 @@ INSTALLED_APPS = (
     'pipeline',
     'haystack',
 
-    'zds.member',
-    'zds.article',
-    'zds.forum',
+    # Apps DB tables are created in THIS order by default
+    # --> Order is CRITICAL to properly handle foreign keys
     'zds.utils',
     'zds.pages',
     'zds.gallery',
     'zds.mp',
-    'zds.tutorial',
     'zds.newsletter',
+    'zds.article',
+    'zds.forum',
+    'zds.tutorial',
+    'zds.member',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

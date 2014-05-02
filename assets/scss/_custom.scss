@@ -49,6 +49,28 @@
 	line-height: 40px;
 }
 
+.top-bar-section .dropdown form {
+	width: 100%;
+	height: 24px;
+
+	button {
+		width: 100%;
+		top: -1px;
+		text-align: left;
+		line-height: 24px;
+		height: 24px;
+		font-size: 13px;
+		padding: 0 20px;
+		background: #084561;
+
+		&:hover,
+		&:focus {
+			background: #396a81;
+			transition: background-color 150ms ease-out;
+		}
+	}
+}
+
 /*
 Logo
 */
@@ -363,20 +385,30 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	width: 100%;
 	border : 0px;
 	border-collapse:collapse;
+
 }
 .topics-entries tr td{
 	border-bottom: 1px solid #ff8c00;
 }
 
-.topic_unread {
-	font-weight: 700;
+.unread a{
+	font-weight: bold;
 }
+
 .topics-entries .read{
-	background-color: #f4f6f6;
+	background-color: #EEE;
 }
 
 .topics-entries .unread{
 	background-color: #FFF;
+}
+
+.forum-entry-solved:before {
+	content:url("../img/thumb-up-voted.png");
+}
+
+.forum-entry-locked:before {
+	content:url("../img/lock-blue.png");
 }
 
 .message-forum {
@@ -413,7 +445,16 @@ h1.forum, h2.forum, h3.forum, h4.forum, h5.forum, h1.member, h2.member, h3.membe
 	text-decoration: none;
 	margin-right: 5px;
 }
-
+.useful {
+	background-color: #e9f9dc;
+}
+.signature {
+	text-overflow: ellipsis;
+	width: 85%;
+	white-space: nowrap;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+}
 .message-forum .message-metadata a,.message-forum .message-metadata i, .message-forum .signature p{
 	color: #999;
 	text-decoration: none;
