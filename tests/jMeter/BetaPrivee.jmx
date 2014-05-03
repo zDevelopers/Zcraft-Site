@@ -13,18 +13,18 @@
     <hashTree>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="jp@gc - Ultimate Thread Group" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="-2079840713">
+          <collectionProp name="-2021948290">
             <stringProp name="57">9</stringProp>
             <stringProp name="48">0</stringProp>
-            <stringProp name="1507671">1080</stringProp>
-            <stringProp name="48687">120</stringProp>
+            <stringProp name="52593">540</stringProp>
+            <stringProp name="1722">60</stringProp>
             <stringProp name="48">0</stringProp>
           </collectionProp>
-          <collectionProp name="-1266452074">
+          <collectionProp name="-66291547">
             <stringProp name="49">1</stringProp>
             <stringProp name="0">0</stringProp>
             <stringProp name="48">0</stringProp>
-            <stringProp name="1509345">1200</stringProp>
+            <stringProp name="53430">600</stringProp>
             <stringProp name="48">0</stringProp>
           </collectionProp>
         </collectionProp>
@@ -775,7 +775,7 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Contrôleur Boucle" enabled="true">
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Additional topics loop" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">${NB_TOPICS_VISITED}</stringProp>
         </LoopController>
@@ -990,6 +990,13 @@
                   <stringProp name="Argument.metadata">=</stringProp>
                   <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 </elementProp>
+                <elementProp name="csrfmiddlewaretoken" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">${COOKIE_csrftoken}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  <stringProp name="Argument.name">csrfmiddlewaretoken</stringProp>
+                </elementProp>
               </collectionProp>
             </elementProp>
             <stringProp name="HTTPSampler.domain"></stringProp>
@@ -999,7 +1006,7 @@
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
             <stringProp name="HTTPSampler.path">/membres/deconnexion/</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
