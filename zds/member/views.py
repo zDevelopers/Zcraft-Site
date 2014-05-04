@@ -93,11 +93,20 @@ def details(request, user_name):
         .filter(author__pk=usr.pk)\
         .order_by('-pubdate')\
         .all()
+    
+    tops = []
+    for top in my_topics :
+        if not top.forum.can_read(request.user):
+            continue
+        else:
+            tops.append(top)
+            if len(tops)>=5 : break
+    
 
     return render_template('member/profile.html', {
         'usr': usr, 'profile': profile, 'bans': bans,
         'articles': my_articles, 'tutorials': my_tutorials,
-        'topics': my_topics
+        'topics': tops
     })
 
 
@@ -490,10 +499,12 @@ def register_view(request):
                 subject, message_txt, from_email, [
                     user.email])
             msg.attach_alternative(message_html, "text/html")
-            msg.send()
+            try:
+                msg.send()
+            except:
+                msg = None
 
             return render_template('member/register_success.html', {
-                'user': user
             })
 
     form = RegisterForm()

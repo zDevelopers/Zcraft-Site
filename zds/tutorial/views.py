@@ -180,7 +180,6 @@ def reservation(request, validation_pk):
 
 @can_read_now
 @login_required
-@permission_required('tutorial.change_tutorial', raise_exception=True)
 def diff(request, tutorial_pk, tutorial_slug):
     try:
         sha = request.GET['sha']
@@ -188,6 +187,10 @@ def diff(request, tutorial_pk, tutorial_slug):
         raise Http404
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    
+    if request.user not in tutorial.authors.all():
+        if not request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied
 
     repo = Repo(tutorial.get_path())
     hcommit = repo.commit(sha)
@@ -2756,6 +2759,8 @@ def get_url_images(md_text, pt):
             # if link is http type
             if parse_object.scheme in ('http', 'https'):
                 (filepath, filename) = os.path.split(parse_object.path)
+                if not os.path.isdir(os.path.join(pt,'images')):
+                    os.makedirs(os.path.join(pt,'images'))
 
                 # download image
                 urlretrieve(
@@ -2894,7 +2899,7 @@ def MEP(tutorial, sha):
     # load pandoc
     os.chdir(tutorial.get_prod_path())
     os.system(
-        "pandoc --latex-engine=xelatex -s -S --toc " +
+        settings.PANDOC_LOC+"pandoc --latex-engine=xelatex -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +
@@ -2904,7 +2909,7 @@ def MEP(tutorial, sha):
             tutorial.slug) +
         ".html")
     os.system(
-        'pandoc ' +
+        settings.PANDOC_LOC+'pandoc ' +
         '--latex-engine=xelatex ' +
         '--template=../../assets/tex/template.tex ' +
         '-s ' +
@@ -2922,7 +2927,7 @@ def MEP(tutorial, sha):
         )
     
     os.system(
-        "pandoc -s -S --toc " +
+        settings.PANDOC_LOC+"pandoc -s -S --toc " +
         os.path.join(
             tutorial.get_prod_path(),
             tutorial.slug) +

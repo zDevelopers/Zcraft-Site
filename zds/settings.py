@@ -260,6 +260,8 @@ FOLLOWED_TOPICS_PER_PAGE = 21
 
 BOT_ACCOUNT = 'admin'
 
+PANDOC_LOC = ''
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
