@@ -15,12 +15,14 @@ class PrivateTopicForm(forms.Form):
         label='Participants',
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Les participants doivent être séparés par une virgule.',
-                'required': 'required'}))
+                'placeholder': u'Les participants doivent '
+                u'être séparés par une virgule.',
+                'required': 'required',
+                'data-autocomplete': '{ "type": "multiple" }'}))
 
     title = forms.CharField(
         label='Titre',
-        max_length = PrivateTopic._meta.get_field('title').max_length,
+        max_length=PrivateTopic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required'
@@ -30,7 +32,7 @@ class PrivateTopicForm(forms.Form):
 
     subtitle = forms.CharField(
         label='Sous-titre',
-        max_length = PrivateTopic._meta.get_field('subtitle').max_length,
+        max_length=PrivateTopic._meta.get_field('subtitle').max_length,
         required=False
     )
 
@@ -48,7 +50,7 @@ class PrivateTopicForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(PrivateTopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -72,7 +74,7 @@ class PrivateTopicForm(forms.Form):
         if participants is not None and participants.strip() != '':
             receivers = participants.strip().split(',')
             for receiver in receivers:
-                if User.objects.filter(username=receiver.strip()).count() == 0:
+                if User.objects.filter(username=receiver.strip()).count() == 0 and receiver.strip() != '':
                     self._errors['participants'] = self.error_class(
                         [u'Un des participants saisi est introuvable'])
 
@@ -113,7 +115,8 @@ class PrivatePostForm(forms.Form):
         if topic.alone():
             self.helper['text'].wrap(
                 Field,
-                placeholder=u'Vous êtes seul dans cette conversation, vous ne pouvez plus y écrire.',
+                placeholder=u'Vous êtes seul dans cette conversation, '
+                u'vous ne pouvez plus y écrire.',
                 disabled=True)
 
     def clean(self):

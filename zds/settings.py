@@ -84,7 +84,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'assets'),
+    os.path.join(SITE_ROOT, 'dist'),
 )
 
 # List of finder classes that know how to find static files in
@@ -95,27 +95,7 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
-
 FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
-# You will need yuglify to be installed
-PIPELINE_JS = {
-    'main-js': {
-        'source_filenames': (
-            'js/app.js',
-        ),
-        'output_filename': 'js/main.js'
-    }
-}
-
-PIPELINE_CSS = {
-    'main-css': {
-        'source_filenames': (
-            'css/zds.css',
-        ),
-        'output_filename': 'css/design.css'
-    }
-}
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
@@ -141,6 +121,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
+    'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -167,6 +148,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages'
 )
 
+CRISPY_TEMPLATE_PACK = 'bootstrap'
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -176,13 +159,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'django.contrib.humanize',
-
+    
+    'easy_thumbnails',
+    'easy_thumbnails.optimize',
     'south',
     'crispy_forms',
-    'crispy_forms_foundation',
     'email_obfuscator',
-    'pipeline',
     'haystack',
+    'munin',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -200,6 +184,26 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'size': (60, 60), 'crop': True},
+        'avatar_mini': {'size': (24, 24), 'crop': True},
+        'tutorial_illu': {'size': (60, 60), 'crop': True},
+        'article_illu': {'size': (60, 60), 'crop': True},
+        'gallery': {'size': (120, 120), 'crop': True},
+        'content': {'size': (960, 960), 'crop': False},
+    },
+}
+
+if (DEBUG):
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -230,11 +234,20 @@ LOGGING = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
 AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
 }
 
 
@@ -242,7 +255,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 # Max size image upload (in bytes)
-IMAGE_MAX_SIZE = 1024 * 1024 * 2
+IMAGE_MAX_SIZE = 1024 * 1024
 
 # git directory
 REPO_PATH = os.path.join(SITE_ROOT, 'tutoriels-private')
@@ -252,6 +265,7 @@ REPO_ARTICLE_PATH = os.path.join(SITE_ROOT, 'articles-data')
 # Constants for pagination
 POSTS_PER_PAGE = 21
 TOPICS_PER_PAGE = 21
+MEMBERS_PER_PAGE = 36
 
 # Constants to avoid spam
 SPAM_LIMIT_SECONDS = 60 * 15
@@ -261,6 +275,9 @@ FOLLOWED_TOPICS_PER_PAGE = 21
 BOT_ACCOUNT = 'admin'
 
 PANDOC_LOC = ''
+# LOG PATH FOR PANDOC LOGGING
+PANDOC_LOG = './pandoc.log'
+PANDOC_LOG_STATE = False
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -272,6 +289,25 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'alert',
+}
+
+
+MAX_POST_LENGTH = 1000000
+SDZ_TUTO_DIR = ''
+
+MAIL_CA_ASSO = 'ca-zeste-de-savoir@googlegroups.com'
+
+# CAREFUL! THIS EMAIL ADRESS SHOULD NOT BE CHANGED
+# WITHOUT THE APPROVAL OF THE ASSOCIATION COMMITEE
+MAIL_NOREPLY = 'noreply@zestedesavoir.com'
 
 # Load the production settings, overwrite the existing ones if needed
 try:

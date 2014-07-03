@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,24 +10,25 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.member.decorator import can_read_now, can_write_and_read_now
+
 from zds.utils import render_template, slugify
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
+from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
 
-@can_read_now
+
 @login_required
 def index(request):
     """Display the all private topics."""
@@ -37,12 +39,15 @@ def index(request):
             liste = request.POST.getlist('items')
             topics = PrivateTopic.objects.filter(pk__in=liste).all()
             for topic in topics:
-                if request.user == topic.author:
+                if topic.participants.all().count() == 0:
+                    topic.delete()
+                elif request.user == topic.author:
                     topic.author = topic.participants.all()[0]
                     topic.participants.remove(topic.participants.all()[0])
+                    topic.save()
                 else:
                     topic.participants.remove(request.user)
-                topic.save()
+                    topic.save()
 
     privatetopics = PrivateTopic.objects\
         .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
@@ -68,7 +73,7 @@ def index(request):
     })
 
 
-@can_read_now
+
 @login_required
 def topic(request, topic_pk, topic_slug):
     """Display a thread and its posts using a pager."""
@@ -76,7 +81,8 @@ def topic(request, topic_pk, topic_slug):
     # TODO: Clean that up
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
-    if not g_topic.author == request.user and not request.user in list(g_topic.participants.all()):
+    if not g_topic.author == request.user \
+            and request.user not in list(g_topic.participants.all()):
         raise PermissionDenied
 
     # Check link
@@ -121,7 +127,7 @@ def topic(request, topic_pk, topic_slug):
     # Build form to add an answer for the current topid.
     form = PrivatePostForm(g_topic, request.user)
 
-    return render_template('mp/topic.html', {
+    return render_template('mp/topic/index.html', {
         'topic': g_topic,
         'posts': res,
         'pages': paginator_range(page_nbr, paginator.num_pages),
@@ -131,7 +137,7 @@ def topic(request, topic_pk, topic_slug):
     })
 
 
-@can_read_now
+
 @login_required
 def new(request):
     """Creates a new private topic."""
@@ -145,7 +151,7 @@ def new(request):
                 'subtitle': request.POST['subtitle'],
                 'text': request.POST['text'],
             })
-            return render_template('mp/new.html', {
+            return render_template('mp/topic/new.html', {
                 'form': form,
             })
 
@@ -158,24 +164,27 @@ def new(request):
             ctrl = []
             list_part = data['participants'].replace(',', ' ').split()
             for part in list_part:
+                part = part.strip()
+                if part == '':
+                    continue
                 p = get_object_or_404(User, username=part)
                 # We don't the author of the MP.
                 if request.user == p:
                     continue
                 ctrl.append(p)
 
-            p_topic = send_mp(request.user, 
-                              ctrl, 
-                              data['title'], 
-                              data['subtitle'], 
+            p_topic = send_mp(request.user,
+                              ctrl,
+                              data['title'],
+                              data['subtitle'],
                               data['text'],
                               True,
                               False)
-            
+
             return redirect(p_topic.get_absolute_url())
 
         else:
-            return render_template('mp/new.html', {
+            return render_template('mp/topic/new.html', {
                 'form': form,
             })
     else:
@@ -192,12 +201,12 @@ def new(request):
         form = PrivateTopicForm(initial={
             'participants': dest
         })
-        return render_template('mp/new.html', {
+        return render_template('mp/topic/new.html', {
             'form': form,
         })
 
 
-@can_read_now
+
 @login_required
 @require_POST
 def edit(request):
@@ -214,8 +223,6 @@ def edit(request):
     except KeyError:
         page = 1
 
-    data = request.POST
-
     g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
 
     if request.POST['username']:
@@ -227,7 +234,7 @@ def edit(request):
     return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
-@can_read_now
+
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""
@@ -255,7 +262,7 @@ def answer(request):
             form = PrivatePostForm(g_topic, request.user, initial={
                 'text': data['text']
             })
-            return render_template('mp/answer.html', {
+            return render_template('mp/post/new.html', {
                 'topic': g_topic,
                 'last_post_pk': last_post_pk,
                 'newpost': newpost,
@@ -272,6 +279,7 @@ def answer(request):
                 post.privatetopic = g_topic
                 post.author = request.user
                 post.text = data['text']
+                post.text_html = emarkdown(data['text'])
                 post.pubdate = datetime.now()
                 post.position_in_topic = g_topic.get_post_count() + 1
                 post.save()
@@ -280,42 +288,47 @@ def answer(request):
                 g_topic.save()
 
                 # send email
-                subject = "ZDS - MP: " + g_topic.title
-                from_email = 'ZesteDeSavoir <noreply@zestedesavoir.com>'
+                subject = "ZDS - MP : " + g_topic.title
+                from_email = "Zeste de Savoir <{0}>".format(settings.MAIL_NOREPLY)
                 parts = list(g_topic.participants.all())
                 parts.append(g_topic.author)
                 parts.remove(request.user)
                 for part in parts:
-                    pos = post.position_in_topic - 1
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=g_topic,
-                        privatepost__position_in_topic=pos,
-                        user=part).count()
-                    if last_read > 0:
-                        message_html = get_template('email/mp.html').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
-                        message_txt = get_template('email/mp.txt').render(
-                            Context({
-                                'username': part.username,
-                                'url': settings.SITE_URL + g_topic.get_absolute_url(),
-                                'author': request.user.username
-                            })
-                        )
+                    profile = part.profile
+                    if profile.email_for_answer:
+                        pos = post.position_in_topic - 1
+                        last_read = PrivateTopicRead.objects.filter(
+                            privatetopic=g_topic,
+                            privatepost__position_in_topic=pos,
+                            user=part).count()
+                        if last_read > 0:
+                            message_html = get_template('email/mp/new.html') \
+                                .render(
+                                    Context({
+                                        'username': part.username,
+                                        'url': settings.SITE_URL
+                                        + post.get_absolute_url(),
+                                        'author': request.user.username
+                                    })
+                            )
+                            message_txt = get_template('email/mp/new.txt').render(
+                                Context({
+                                    'username': part.username,
+                                    'url': settings.SITE_URL
+                                    + post.get_absolute_url(),
+                                    'author': request.user.username
+                                })
+                            )
 
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
+                            msg = EmailMultiAlternatives(
+                                subject, message_txt, from_email, [
+                                    part.email])
+                            msg.attach_alternative(message_html, "text/html")
+                            msg.send()
 
                 return redirect(post.get_absolute_url())
             else:
-                return render_template('mp/answer.html', {
+                return render_template('mp/post/new.html', {
                     'topic': g_topic,
                     'last_post_pk': last_post_pk,
                     'newpost': newpost,
@@ -333,7 +346,7 @@ def answer(request):
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
 
-            text = u'{0}\nSource:[{1}]({2})'.format(
+            text = u'{0}Source:[{1}]({2})'.format(
                 text,
                 post_cite.author.username,
                 post_cite.get_absolute_url())
@@ -341,7 +354,7 @@ def answer(request):
         form = PrivatePostForm(g_topic, request.user, initial={
             'text': text
         })
-        return render_template('mp/answer.html', {
+        return render_template('mp/post/new.html', {
             'topic': g_topic,
             'posts': posts,
             'last_post_pk': last_post_pk,
@@ -349,7 +362,7 @@ def answer(request):
         })
 
 
-@can_read_now
+
 @login_required
 def edit_post(request):
     """Edit the given user's post."""
@@ -376,7 +389,7 @@ def edit_post(request):
         raise PermissionDenied
 
     if request.method == 'POST':
-        if not 'text' in request.POST:
+        if 'text' not in request.POST:
             # if preview mode return on
             if 'preview' in request.POST:
                 return redirect(
@@ -394,7 +407,8 @@ def edit_post(request):
             })
             form.helper.form_action = reverse(
                 'zds.mp.views.edit_post') + '?message=' + str(post_pk)
-            return render_template('mp/edit_post.html', {
+
+            return render_template('mp/post/edit.html', {
                 'post': post,
                 'topic': g_topic,
                 'form': form,
@@ -402,6 +416,7 @@ def edit_post(request):
 
         # The user just sent data, handle them
         post.text = request.POST['text']
+        post.text_html = emarkdown(request.POST['text'])
         post.update = datetime.now()
         post.save()
 
@@ -413,14 +428,15 @@ def edit_post(request):
         })
         form.helper.form_action = reverse(
             'zds.mp.views.edit_post') + '?message=' + str(post_pk)
-        return render_template('mp/edit_post.html', {
+        return render_template('mp/post/edit.html', {
             'post': post,
             'topic': g_topic,
             'text': post.text,
             'form': form,
         })
 
-@can_read_now
+
+
 @login_required
 @require_POST
 @transaction.atomic
@@ -434,35 +450,40 @@ def leave(request):
             ptopic.author = move
             ptopic.participants.remove(move)
             ptopic.save()
-        else : 
+        else:
             ptopic.participants.remove(request.user)
             ptopic.save()
-        
+
         messages.success(
-                request, 'Vous avez quitté la conversation avec succès.')
-    
+            request, 'Vous avez quitté la conversation avec succès.')
+
     return redirect(reverse('zds.mp.views.index'))
 
-@can_read_now
+
+
 @login_required
 @require_POST
 @transaction.atomic
 def add_participant(request):
     ptopic = PrivateTopic.objects.get(pk=request.POST['topic_pk'])
-    try :
+    try:
         part = User.objects.get(username=request.POST['user_pk'])
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
-                request, 'Le membre que vous essayez d\'ajouter à la conversation y est déjà')
+                request,
+                'Le membre que vous essayez d\'ajouter '
+                u'à la conversation y est déjà')
         else:
             ptopic.participants.add(part)
             ptopic.save()
-    
-            messages.success(request, 'Le membre a bien été ajouté à la conversation')
+
+            messages.success(
+                request,
+                'Le membre a bien été ajouté à la conversation')
     except:
         messages.warning(
-                request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
+            request, 'Le membre que vous avez essayé d\'ajouter n\'existe pas')
 
     return redirect(reverse('zds.mp.views.topic', args=[
-                ptopic.pk,
-                slugify(ptopic.title)]))
+        ptopic.pk,
+        slugify(ptopic.title)]))

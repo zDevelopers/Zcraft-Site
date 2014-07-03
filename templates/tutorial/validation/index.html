@@ -1,0 +1,110 @@
+{% extends "tutorial/base_online.html" %}
+{% load date %}
+{% load captureas %}
+
+
+
+{% block title %}
+    Validation
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Validation</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2>
+            {% block headline %}
+                Validation des tutoriels
+            {% endblock %}
+        </h2>
+
+        {% captureas headlinesub %}
+            {% block headline_sub %}{% endblock %}
+        {% endcaptureas %}
+        {% if headlinesub %}
+            <h3 class="subtitle">{{ headlinesub|safe }}</h3>
+        {% endif %}
+
+        {% block content %}
+            {% if validations %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th width="8%">Catégorie(s)</th>
+                            <th width="8%">Auteur(s)</th>
+                            <th width="8%">Proposé</th>
+                            <th width="24%">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for validation in validations %}
+                            <tr>
+                                <td>
+                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
+                                        {{ validation.tutorial.title }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for subcategory in validation.tutorial.subcategory.all %}
+                                        <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{subcategory.pk}}">
+                                            {{ subcategory.title }}
+                                        </a>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for author in validation.tutorial.authors.all %}
+                                        {% include 'misc/member_item.part.html' with member=author avatar=True %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <span>{{ validation.date_proposition|format_date|capfirst }}</span>
+                                </td>
+                                <td>
+                                    {% captureas reservation_url %}
+                                        {% url "zds.tutorial.views.reservation" validation.pk %}
+                                    {% endcaptureas %}
+                                    {% include "misc/validation.part.html" %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>
+                    Aucun tutoriel soumis en validation.
+                </p>
+            {% endif %}
+        {% endblock %}
+    </section>
+{% endblock %}
+
+
+
+{% block sidebar_new %}{% endblock %}
+{% block sidebar_blocks %}
+    <h3>Filtres</h3>
+    <ul>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green">
+                En cours de validation
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick">
+                En attente de validateur
+            </a>
+        </li>
+        <li>
+            <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
+                Annuler le filtre
+            </a>
+        </li>
+    </ul>
+{% endblock %}

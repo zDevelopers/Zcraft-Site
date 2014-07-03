@@ -1,0 +1,13 @@
+{% load profile %}
+
+
+
+{% with status=member|state %}
+    {% if status == 'BAN'%}
+        <span class="badge banned {% if push_badge %}push-badge{% endif %}">Banni</span>
+    {% elif status == 'LS'%}
+        <span class="badge readonly {% if push_badge %}push-badge{% endif %}">LS</span>
+    {% elif status == 'STAFF' %}
+        <span class="badge staff {% if push_badge %}push-badge{% endif %}">Staff</span>
+    {% endif %}
+{% endwith %}

@@ -1,0 +1,31 @@
+{% extends "member/register/base.html" %}
+
+
+
+{% block title %}
+    Confirmation d'inscription réussie
+{% endblock %}
+
+
+
+{% block headline %}
+    Confirmation d'inscription réussie
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.member.views.register_view" %}">Inscription</a></li>
+    <li>Confirmation</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        Vous avez confirmé votre courriel sur le site.
+    </p>
+    <p>
+        Vous pouvez maintenant <a href="{% url "zds.member.views.login_view" %}">vous connecter</a>.
+    </p>
+{% endblock %}

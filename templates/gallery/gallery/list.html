@@ -1,0 +1,69 @@
+{% extends "gallery/base.html" %}
+
+
+
+{% block title %}
+   Liste des galeries
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>Liste des galeries</li>
+{% endblock %}
+
+
+
+{% block headline %}
+   Liste des galeries
+{% endblock %}
+
+
+
+{% block content %}
+    <form id="form" name="form" method="post" action="{% url "zds.gallery.views.modify_gallery" %}">
+        <div class="topic-list topic-list-small navigable-list">
+            {% for gallery in galleries %}
+                <div class="topic navigable-elem">
+                    <div class="topic-infos">
+                        <input
+                            name="items"
+                            type="checkbox"
+                            {% if not gallery.is_write %}
+                                disabled="true"
+                            {% endif %}
+                            value="{{ gallery.gallery.pk }}"
+                        >
+                    </div>
+                    <div class="topic-description">
+                        <a href="{{ gallery.gallery.get_absolute_url }}" class="topic-title-link navigable-link">
+                            <span class="topic-title">
+                                {{ gallery.gallery.title }}
+                            </span>
+                            <span class="topic-subtitle">
+                                {{ gallery.gallery.subtitle|default:"Pas de description" }}
+                            </span>
+                        </a>
+                    </div>
+                    <p class="topic-answers">
+                        {% with img_count=gallery.gallery.get_images.count %}
+                            {% if img_count == 0 %}
+                                Aucune image
+                            {% elif img_count == 1 %}
+                                1 image
+                            {% else %}
+                                {{ img_count }} images
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" name="delete_multi" class="btn btn-cancel">
+            Supprimer la séléction
+        </button>
+
+        {% csrf_token %}
+    </form>
+{% endblock %}

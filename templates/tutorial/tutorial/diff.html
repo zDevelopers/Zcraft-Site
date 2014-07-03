@@ -1,0 +1,57 @@
+{% extends "tutorial/base.html" %}
+{% load emarkdown %}
+{% load repo_reader %}
+{% load thumbnail %}
+
+
+{% block title %}
+    {{ tutorial.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li>Historique</li>
+{% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ tutorial.title }}
+    </h1>
+
+    {% include 'tutorial/includes/tags_authors.part.html' %}
+{% endblock %}
+
+
+
+{% block content %}
+    <h2>Nouveaux Fichiers</h2>
+    {% for add in path_add %}
+        {% with add_next=add.b_blob|repo_blob %}
+            <h3>{{ add.a_blob.path }}</h3>
+            {{ ''|diff_text:add_next|safe }}
+        {% endwith %}
+    {% endfor %}
+
+    <h2>Fichiers Modifiés</h2>
+    {% for maj in path_maj %}
+        {% with maj_next=maj.b_blob|repo_blob %}
+            {% with maj_prev=maj.a_blob|repo_blob %}
+                <h3>{{ maj.a_blob.path }}</h3>
+                {{ maj_prev|diff_text:maj_next|safe }}
+            {% endwith %}
+        {% endwith %} 
+    {% endfor %}
+{% endblock %}

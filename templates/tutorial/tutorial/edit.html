@@ -1,0 +1,38 @@
+{% extends "tutorial/base.html" %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+
+
+{% block title %}
+    Éditer le tutoriel
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if tutorial.image %}class="illu"{% endif %}>
+        {% if tutorial.image %}
+            <img src="{{tutorial.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        Éditer le tutoriel : {{ tutorial.title }}
+    </h1>
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ tutorial.description }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li>Éditer le tutoriel</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

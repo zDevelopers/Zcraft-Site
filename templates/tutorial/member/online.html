@@ -1,0 +1,46 @@
+{% extends "tutorial/base_online.html" %}
+{% load date %}
+{% load profile %}
+{% load emarkdown %}
+
+
+
+{% block title %}
+    Tutoriels publiés par {{ usr.username }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li ><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.username %}">Tutoriels publiés</a></li>
+    <li>Recherche</li>
+{% endblock %}
+
+{% block headline %}
+    <h2 class="ico-after ico-tutorials">Tutoriels publiés par {{ usr.username }}</h2>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if tutorials %}
+        <div class="tutorial-list">
+            {% for tutorial in tutorials %}
+                {% include 'tutorial/includes/tutorial_item.part.html' with beta=True %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            Aucun tutoriel disponible.
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar_blocks %}
+    <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta" class="new-btn ico-after view blue">
+        Tutoriels en bêta par {{ usr.username }}
+    </a>
+{% endblock %}

@@ -1,52 +1,22 @@
 # coding: utf-8
 
-from cStringIO import StringIO
-from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import models
-from django.dispatch import receiver
 import os
 import string
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
-from PIL import Image as PILImage
-
-
-IMAGE_THUMB_MAX_WIDTH = 128
-IMAGE_THUMB_MAX_HEIGHT = 128
-IMAGE_MEDIUM_MAX_WIDTH = 400
-IMAGE_MEDIUM_MAX_HEIGHT = 300
+from django.db import models
+from django.dispatch import receiver
+from easy_thumbnails.fields import ThumbnailerImageField
 
 
 def image_path(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join(
-        'galleries', 'normal', str(
-            instance.gallery.pk), filename)
-
-
-def image_path_thumb(instance, filename):
-    """Return path to an image."""
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join(
-        'galleries', 'thumb', str(
-            instance.gallery.pk), filename)
-
-
-def image_path_medium(instance, filename):
-    """Return path to an image."""
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join(
-        'galleries', 'medium', str(
-            instance.gallery.pk), filename)
-
+    return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 class UserGallery(models.Model):
 
@@ -54,8 +24,8 @@ class UserGallery(models.Model):
         verbose_name = "Galeries de l'utilisateur"
         verbose_name_plural = "Galeries de l'utilisateur"
 
-    user = models.ForeignKey(User, verbose_name=('Membre'))
-    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'))
+    user = models.ForeignKey(User, verbose_name=('Membre'), db_index=True)
+    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     MODE_CHOICES = (
         ('R', 'Lecture'),
         ('W', 'Ecriture')
@@ -89,20 +59,12 @@ class Image(models.Model):
         verbose_name = "Image"
         verbose_name_plural = "Images"
 
-    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'))
+    gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
     title = models.CharField('Titre', max_length=80, null=True, blank=True)
     slug = models.SlugField(max_length=80)
-    physical = models.ImageField(upload_to=image_path)
-    thumb = models.ImageField(
-        upload_to=image_path_thumb,
-        null=True,
-        blank=True)
-    medium = models.ImageField(
-        upload_to=image_path_medium,
-        null=True,
-        blank=True)
+    physical = ThumbnailerImageField(upload_to=image_path)
     legend = models.CharField('Légende', max_length=80, null=True, blank=True)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     update = models.DateTimeField(
         'Date de modification', null=True, blank=True)
 
@@ -114,71 +76,7 @@ class Image(models.Model):
         return '{0}/{1}'.format(settings.MEDIA_URL, self.physical)
 
     def get_extension(self):
-        return os.path.splitext(self.nom_physique)[1]
-
-    def save(
-        self,
-        force_update=False,
-        force_insert=False,
-        thumb_size=(
-            IMAGE_THUMB_MAX_WIDTH,
-            IMAGE_THUMB_MAX_HEIGHT),
-        medium_size=(
-            IMAGE_MEDIUM_MAX_WIDTH,
-            IMAGE_MEDIUM_MAX_HEIGHT)):
-        if has_changed(self, 'physical') and self.physical:
-            # TODO : delete old image
-
-            image = PILImage.open(self.physical)
-
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
-
-            # Medium
-            image.thumbnail(medium_size, PILImage.ANTIALIAS)
-
-            # save the thumbnail to memory
-            temp_handle = StringIO()
-            image.save(temp_handle, 'png')
-            temp_handle.seek(0)  # rewind the file
-
-            # save to the thumbnail field
-            suf = SimpleUploadedFile(os.path.split(self.physical.name)[-1],
-                                     temp_handle.read(),
-                                     content_type='image/png')
-            self.medium.save(suf.name + '.png', suf, save=False)
-
-            # Thumbnail
-            image.thumbnail(thumb_size, PILImage.ANTIALIAS)
-
-            # save the thumbnail to memory
-            temp_handle = StringIO()
-            image.save(temp_handle, 'png')
-            temp_handle.seek(0)  # rewind the file
-
-            # save to the thumbnail field
-            suf = SimpleUploadedFile(os.path.split(self.physical.name)[-1],
-                                     temp_handle.read(),
-                                     content_type='image/png')
-            self.thumb.save(suf.name + '.png', suf, save=False)
-
-            # save the image object
-            super(Image, self).save(force_update, force_insert)
-        else:
-            super(Image, self).save()
-
-
-def has_changed(instance, field, manager='objects'):
-    """Returns true if a field has changed in a model May be used in a
-    model.save() method."""
-    if not instance.pk:
-        return True
-    manager = getattr(instance.__class__, manager)
-    old = getattr(manager.get(pk=instance.pk), field)
-    return not getattr(instance, field) == old
-
-# These two auto-delete files from filesystem when they are unneeded:
-
+        return os.path.splitext(self.physical.name)[1][1:]
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -197,7 +95,7 @@ class Gallery(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous titre', max_length=200)
     slug = models.SlugField(max_length=80)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     update = models.DateTimeField(
         'Date de modification', null=True, blank=True)
 
@@ -209,6 +107,7 @@ class Gallery(models.Model):
         return reverse('zds.gallery.views.gallery_details',
                        args=[self.pk, self.slug])
 
+    # TODO rename function to get_users_galleries
     def get_users(self):
         return UserGallery.objects.all()\
             .filter(gallery=self)

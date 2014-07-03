@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import slugify
+from zds.utils import slugify
 from math import ceil
 import os
 import string
@@ -10,9 +10,17 @@ import uuid
 
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
+from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_text
 
 from zds.utils import get_current_user
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
+
+
+def sub_tag(g):
+    start = g.group('start')
+    end = g.group('end')
+    return u"{0}".format(start + end)
 
 
 def image_path_forum(instance, filename):
@@ -31,14 +39,19 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', null=True, blank=True)
-    slug = models.SlugField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80,
+                            unique=True,
+                            help_text="Ces slugs vont provoquer des conflits "
+                            "d'URL et sont donc interdits : notifications "
+                            "resolution_alerte sujet sujets message messages")
 
     def __unicode__(self):
         """Textual form of a category."""
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/'.format(self.slug)
+        return reverse('zds.forum.views.cat_details',
+                       kwargs={'cat_slug': self.slug})
 
     def get_forums(self):
         return Forum.objects.all()\
@@ -63,9 +76,9 @@ class Forum(models.Model):
         blank=True)
     image = models.ImageField(upload_to=image_path_forum)
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie')
+    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
-                                               null=True, blank=True)
+                                               null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
 
@@ -74,10 +87,9 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/{0}/{1}/'.format(
-            self.category.slug,
-            self.slug,
-        )
+        return reverse('zds.forum.views.details',
+                       kwargs={'cat_slug': self.category.slug,
+                               'forum_slug': self.slug})
 
     def get_topic_count(self):
         """Gets the number of threads in the forum."""
@@ -128,29 +140,39 @@ class Topic(models.Model):
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
 
-    forum = models.ForeignKey(Forum, verbose_name='Forum')
+    forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='topics')
+                               related_name='topics', db_index=True)
     last_message = models.ForeignKey('Post', null=True,
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
-    is_solved = models.BooleanField('Est résolu', default=False)
+    is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     is_locked = models.BooleanField('Est verrouillé', default=False)
-    is_sticky = models.BooleanField('Est en post-it', default=False)
+    is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
+
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name='Tags du forum',
+        null=True,
+        blank=True,
+        db_index=True)
 
     def __unicode__(self):
         """Textual form of a thread."""
         return self.title
 
     def get_absolute_url(self):
-        return '/forums/sujet/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse(
+            'zds.forum.views.topic',
+            args=[self.pk, slugify(self.title)]
+        )
 
     def get_post_count(self):
         """Return the number of posts in the topic."""
         return Post.objects.filter(topic__pk=self.pk).count()
-    
+
     def get_last_post(self):
         """Gets the last post in the thread."""
         return Post.objects.all()\
@@ -171,8 +193,24 @@ class Topic(models.Model):
         """Return the first post of a topic, written by topic's author."""
         return Post.objects\
             .filter(topic=self)\
+            .select_related("author")\
             .order_by('pubdate')\
             .first()
+
+    def add_tags(self,tag_collection):
+        for tag in tag_collection:
+            tag_title = smart_text(tag.strip().lower())
+            current_tag = Tag.objects.filter(title=tag_title).first()
+            if current_tag is None:
+                current_tag = Tag(title=tag_title)
+                current_tag.save()
+
+            self.tags.add(current_tag)
+        self.save()
+
+    def get_followers_by_email(self):
+        """Return set on followers by email"""
+        return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")
 
     def last_read_post(self):
         """Return the last post the user has read."""
@@ -188,13 +226,13 @@ class Topic(models.Model):
         """Return the first post the user has unread."""
         try:
             last_post = TopicRead.objects\
-                .select_related()\
                 .filter(topic=self, user=get_current_user())\
                 .latest('post__pubdate').post
-            
+
             next_post = Post.objects.filter(
                 topic__pk=self.pk,
-                pubdate__gt=last_post.pubdate).first()
+                pubdate__gt=last_post.pubdate)\
+                .select_related("author").first()
 
             return next_post
         except:
@@ -211,6 +249,21 @@ class Topic(models.Model):
 
         try:
             TopicFollowed.objects.get(topic=self, user=user)
+        except TopicFollowed.DoesNotExist:
+            return False
+        return True
+    
+    def is_email_followed(self, user=None):
+        """Check if the topic is currently email followed by the user.
+
+        This method uses the TopicFollowed objects.
+
+        """
+        if user is None:
+            user = get_current_user()
+
+        try:
+            TopicFollowed.objects.get(topic=self, user=user, email=True)
         except TopicFollowed.DoesNotExist:
             return False
         return True
@@ -249,7 +302,7 @@ class Post(Comment):
 
     """A forum post written by an user."""
 
-    topic = models.ForeignKey(Topic, verbose_name='Sujet')
+    topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
     is_useful = models.BooleanField('Est utile', default=False)
 
@@ -278,9 +331,9 @@ class TopicRead(models.Model):
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
 
-    topic = models.ForeignKey(Topic)
-    post = models.ForeignKey(Post)
-    user = models.ForeignKey(User, related_name='topics_read')
+    topic = models.ForeignKey(Topic, db_index=True)
+    post = models.ForeignKey(Post, db_index=True)
+    user = models.ForeignKey(User, related_name='topics_read', db_index=True)
 
     def __unicode__(self):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
@@ -300,8 +353,9 @@ class TopicFollowed(models.Model):
         verbose_name = 'Sujet suivi'
         verbose_name_plural = 'Sujets suivis'
 
-    topic = models.ForeignKey(Topic)
-    user = models.ForeignKey(User, related_name='topics_followed')
+    topic = models.ForeignKey(Topic, db_index=True)
+    user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
+    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
 
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
@@ -321,18 +375,23 @@ def never_read(topic, user=None):
 
 def mark_read(topic):
     """Mark a topic as read for the user."""
-    TopicRead.objects.filter(topic=topic, user=get_current_user()).delete()
-    t = TopicRead(
-        post=topic.last_message, topic=topic, user=get_current_user())
+    u = get_current_user()
+    t = TopicRead.objects.filter(topic=topic, user=u).first()
+    if t is None:
+        t = TopicRead(post=topic.last_message, topic=topic, user=u)
+    else:
+        t.post = topic.last_message
     t.save()
 
 
-def follow(topic):
+def follow(topic, user=None):
     """Toggle following of a topic for an user."""
     ret = None
+    if user is None:
+        user=get_current_user()
     try:
         existing = TopicFollowed.objects.get(
-            topic=topic, user=get_current_user()
+            topic=topic, user=user
         )
     except TopicFollowed.DoesNotExist:
         existing = None
@@ -341,7 +400,7 @@ def follow(topic):
         # Make the user follow the topic
         t = TopicFollowed(
             topic=topic,
-            user=get_current_user()
+            user=user
         )
         t.save()
         ret = True
@@ -349,6 +408,34 @@ def follow(topic):
         # If user is already following the topic, we make him don't anymore
         existing.delete()
         ret = False
+    return ret
+
+def follow_by_email(topic, user=None):
+    """Toggle following of a topic for an user."""
+    ret = None
+    if user is None:
+        user=get_current_user()
+    try:
+        existing = TopicFollowed.objects.get(
+            topic=topic, \
+            user=user
+        )
+    except TopicFollowed.DoesNotExist:
+        existing = None
+
+    if not existing:
+        # Make the user follow the topic
+        t = TopicFollowed(
+            topic=topic,
+            user=user,
+            email = True
+        )
+        t.save()
+        ret = True
+    else:
+        existing.email = not existing.email
+        existing.save()
+        ret = existing.email
     return ret
 
 

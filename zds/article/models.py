@@ -4,20 +4,30 @@ from cStringIO import StringIO
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
-import json
 from math import ceil
 import os
 import string
 import uuid
+from easy_thumbnails.fields import ThumbnailerImageField
+
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from PIL import Image
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article
 from zds.utils.models import SubCategory, Comment
+from django.core.urlresolvers import reverse
 
 
 IMAGE_MAX_WIDTH = 480
@@ -41,31 +51,31 @@ class Article(models.Model):
     description = models.CharField('Description', max_length=200)
     slug = models.SlugField(max_length=80)
 
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField(
         'Date de publication',
         blank=True,
-        null=True)
+        null=True,
+        db_index=True)
     update = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True)
+                                         blank=True, null=True, db_index=True)
 
-    image = models.ImageField(upload_to=image_path, blank=True, null=True)
-    thumbnail = models.ImageField(upload_to=image_path, blank=True, null=True)
+    image = ThumbnailerImageField(upload_to=image_path, blank=True, null=True)
 
-    is_visible = models.BooleanField('Visible en rédaction', default=False)
+    is_visible = models.BooleanField('Visible en rédaction', default=False, db_index=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80)
+                                  blank=True, null=True, max_length=80,db_index=True)
     sha_validation = models.CharField('Sha1 de la version en validation',
-                                      blank=True, null=True, max_length=80)
+                                      blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
-                                 blank=True, null=True, max_length=80)
+                                 blank=True, null=True, max_length=80, db_index=True)
 
     text = models.CharField(
         'chemin relatif du texte',
@@ -82,13 +92,21 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/articles/off/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
+
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
 
     def get_absolute_url_online(self):
-        return '/articles/{0}/{1}'.format(self.pk, slugify(self.title))
+        return reverse('zds.article.views.view_online',
+                       kwargs={'article_pk': self.pk,
+                               'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return '/articles/off/editer?article={0}'.format(self.pk)
+        return reverse('zds.article.views.edit') + \
+            '?article={0}'.format(self.pk)
 
     def on_line(self):
         return self.sha_public is not None
@@ -103,7 +121,7 @@ class Article(models.Model):
         if relative:
             return None
         else:
-            return os.path.join(settings.REPO_ARTICLE_PATH, self.slug)
+            return os.path.join(settings.REPO_ARTICLE_PATH, self.get_phy_slug())
 
     def load_json(self, path=None, online=False):
         if path is None:
@@ -112,7 +130,7 @@ class Article(models.Model):
             man_path = path
         if os.path.isfile(man_path):
             json_data = open(man_path)
-            data = json.load(json_data)
+            data = json_reader.load(json_data)
             json_data.close()
 
             return data
@@ -126,7 +144,7 @@ class Article(models.Model):
             man_path = path
 
         dct = export_article(self)
-        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
         json_data.write(data.encode('utf-8'))
         json_data.close()
@@ -139,43 +157,18 @@ class Article(models.Model):
 
         return txt_contenu.decode('utf-8')
 
-    def save(
-            self,
-            force_update=False,
-            force_insert=False,
-            thumb_size=(
-                IMAGE_MAX_HEIGHT,
-                IMAGE_MAX_WIDTH),
-            *args,
-            **kwargs):
-
+    def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-
+        
         if has_changed(self, 'image') and self.image:
-            # TODO : delete old image
+            old = get_old_field_value(self, 'image', 'objects')
+            
+            if old is not None and len(old.name) > 0:
+                root = settings.MEDIA_ROOT
+                name = os.path.join(root, old.name)
+                os.remove(name)
 
-            image = Image.open(self.image)
-
-            if image.mode not in ('L', 'RGB'):
-                image = image.convert('RGB')
-
-            image.thumbnail(thumb_size, Image.ANTIALIAS)
-
-            # save the thumbnail to memory
-            temp_handle = StringIO()
-            image.save(temp_handle, 'png')
-            temp_handle.seek(0)  # rewind the file
-
-            # save to the thumbnail field
-            suf = SimpleUploadedFile(os.path.split(self.image.name)[-1],
-                                     temp_handle.read(),
-                                     content_type='image/png')
-            self.thumbnail.save(suf.name + '.png', suf, save=False)
-
-            # save the image object
-            super(Article, self).save(force_update, force_insert)
-        else:
-            super(Article, self).save()
+        super(Article, self).save(*args, **kwargs)
 
     def get_reaction_count(self):
         """Return the number of reactions in the article."""
@@ -208,6 +201,22 @@ class Article(models.Model):
                 .latest('reaction__pubdate').reaction
         except Reaction.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_reaction(self):
+        """Return the first reaction the user has unread."""
+        try:
+            last_reaction = ArticleRead.objects\
+                .filter(article=self, user=get_current_user())\
+                .latest('reaction__pubdate').reaction
+
+            next_reaction = Reaction.objects.filter(
+                article__pk=self.pk,
+                pubdate__gt=last_reaction.pubdate)\
+                .select_related("author").first()
+
+            return next_reaction
+        except:
+            return self.first_reaction()
 
     def antispam(self, user=None):
         """Check if the user is allowed to post in an article according to the
@@ -227,7 +236,8 @@ class Article(models.Model):
             .filter(author=user.pk)\
             .order_by('-pubdate')
 
-        if last_user_reactions and last_user_reactions[0] == self.last_reaction:
+        if last_user_reactions \
+                and last_user_reactions[0] == self.last_reaction:
             last_user_reaction = last_user_reactions[0]
             t = timezone.now() - last_user_reaction.pubdate
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
@@ -240,9 +250,17 @@ def has_changed(instance, field, manager='objects'):
     model.save() method."""
     if not instance.pk:
         return True
-    manager = getattr(instance.__class__, manager)
-    old = getattr(manager.get(pk=instance.pk), field)
+    old = get_old_field_value(instance, field, manager)
     return not getattr(instance, field) == old
+
+
+def get_old_field_value(instance, field, manager):
+    """returns the old instance of the field. Should be used when you
+    want to delete an old image."""
+    if not instance.pk:
+        return None
+    manager = getattr(instance.__class__, manager)
+    return getattr(manager.get(pk=instance.pk), field)
 
 
 def get_last_articles():
@@ -278,7 +296,7 @@ STATUS_CHOICES = (
 class Reaction(Comment):
 
     """A reaction article written by an user."""
-    article = models.ForeignKey(Article, verbose_name='Article')
+    article = models.ForeignKey(Article, verbose_name='Article', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -305,9 +323,9 @@ class ArticleRead(models.Model):
         verbose_name = 'Article lu'
         verbose_name_plural = 'Articles lus'
 
-    article = models.ForeignKey(Article)
-    reaction = models.ForeignKey(Reaction)
-    user = models.ForeignKey(User, related_name='reactions_read')
+    article = models.ForeignKey(Article, db_index=True)
+    reaction = models.ForeignKey(Reaction, db_index=True)
+    user = models.ForeignKey(User, related_name='reactions_read', db_index=True)
 
     def __unicode__(self):
         return u'<Article "{0}" lu par {1}, #{2}>'.format(self.article,
@@ -347,15 +365,15 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     article = models.ForeignKey(Article, null=True, blank=True,
-                                verbose_name='Article proposé')
+                                verbose_name='Article proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
-                               blank=True, null=True, max_length=80)
-    date_proposition = models.DateTimeField('Date de proposition')
+                               blank=True, null=True, max_length=80, db_index=True)
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
     comment_authors = models.TextField('Commentaire de l\'auteur')
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='articles_author_validations',
-                                  blank=True, null=True)
+                                  blank=True, null=True, db_index=True)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',

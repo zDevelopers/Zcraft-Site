@@ -2,13 +2,22 @@
 
 from datetime import datetime
 from git.repo import Repo
-import json
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 
 import factory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
+from zds.utils.models import SubCategory 
 from zds.utils.tutorials import export_tutorial
 
 
@@ -35,7 +44,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")
-        f.write(json.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, tuto.introduction), "w")
         f.write(u'Test')
@@ -47,6 +56,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         cm = repo.index.commit("Init Tuto")
 
         tuto.sha_draft = cm.hexsha
+        tuto.sha_beta = None
         return tuto
 
 
@@ -74,7 +84,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         file = open(os.path.join(path, 'manifest.json'), "w")
         file.write(
-            json.dumps(
+            json_writer.dumps(
                 man,
                 indent=4,
                 ensure_ascii=False).encode('utf-8'))
@@ -109,8 +119,8 @@ class PartFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-        part.introduction = os.path.join(part.slug, 'introduction.md')
-        part.conclusion = os.path.join(part.slug, 'conclusion.md')
+        part.introduction = os.path.join(part.get_phy_slug(), 'introduction.md')
+        part.conclusion = os.path.join(part.get_phy_slug(), 'conclusion.md')
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
@@ -128,7 +138,7 @@ class PartFactory(factory.DjangoModelFactory):
             man = export_tutorial(tutorial)
             f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))
@@ -170,7 +180,7 @@ class ChapterFactory(factory.DjangoModelFactory):
             man = export_tutorial(tutorial)
             f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))
@@ -179,12 +189,12 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         elif part:
             chapter.introduction = os.path.join(
-                part.slug,
-                chapter.slug,
+                part.get_phy_slug(),
+                chapter.get_phy_slug(),
                 'introduction.md')
             chapter.conclusion = os.path.join(
-                part.slug,
-                chapter.slug,
+                part.get_phy_slug(),
+                chapter.get_phy_slug(),
                 'conclusion.md')
             chapter.save()
             f = open(
@@ -211,7 +221,7 @@ class ChapterFactory(factory.DjangoModelFactory):
                     'manifest.json'),
                 "w")
             f.write(
-                json.dumps(
+                json_writer.dumps(
                     man,
                     indent=4,
                     ensure_ascii=False).encode('utf-8'))
@@ -269,6 +279,13 @@ class NoteFactory(factory.DjangoModelFactory):
             tutorial.last_note = note
             tutorial.save()
         return note
+
+class SubCategoryFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = SubCategory
+
+    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
+    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
+    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
 
 
 class VaidationFactory(factory.DjangoModelFactory):

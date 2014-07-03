@@ -46,9 +46,12 @@ def humane_time(t, conf={}):
 
 @register.filter(needs_autoescape=False)
 def emarkdown(text):
-    return mark_safe(
-        get_markdown_instance(
-            Inline=False).convert(text).encode('utf-8'))
+    try:
+        return mark_safe(
+            get_markdown_instance(
+                Inline=False).convert(text).encode('utf-8'))
+    except:
+        return mark_safe(u'<div class="error ico-after"><p>Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug</p>')
 
 
 @register.filter(needs_autoescape=False)
@@ -57,26 +60,30 @@ def emarkdown_inline(text):
         get_markdown_instance(
             Inline=True).convert(text).encode('utf-8').strip())
 
+
 def sub_hd1(g):
     lvl = g.group('level')
     hd = g.group('header')
-    next = "#"+lvl+hd
-    
+    next = "#" + lvl + hd
+
     return next
+
 
 def sub_hd2(g):
     lvl = g.group('level')
     hd = g.group('header')
-    next = "#"+lvl+hd
-    
+    next = "#" + lvl + hd
+
     return next
+
 
 def sub_hd3(g):
     lvl = g.group('level')
     hd = g.group('header')
-    next = "###"+lvl+hd
-    
+    next = "###" + lvl + hd
+
     return next
+
 
 @register.filter('decale_header_1')
 def decale_header_1(text):
@@ -84,12 +91,16 @@ def decale_header_1(text):
         r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
         sub_hd1,
         text.encode("utf-8"))
+
+
 @register.filter('decale_header_2')
 def decale_header_2(text):
     return re.sub(
         r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)',
         sub_hd2,
         text.encode("utf-8"))
+
+
 @register.filter('decale_header_3')
 def decale_header_3(text):
     return re.sub(

@@ -1,16 +1,23 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from git.repo import Repo
-import json
 from math import ceil
-from os import path
+try:
+    import ujson as json_reader
+except:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
+
+import json as json_writer
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils import timezone
+from git.repo import Repo
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
@@ -20,7 +27,7 @@ from zds.utils.tutorials import get_blob, export_tutorial
 
 TYPE_CHOICES = (
     ('MINI', 'Mini-tuto'),
-    ('BIG', 'Big tuto'),
+    ('BIG', 'Big-tuto'),
 )
 
 STATUS_CHOICES = (
@@ -40,42 +47,43 @@ class Tutorial(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     description = models.CharField('Description', max_length=200)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs')
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True)
+                                         blank=True, null=True, db_index=True)
 
     slug = models.SlugField(max_length=80)
 
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
-                              blank=True, null=True)
+                              blank=True, null=True,
+                              on_delete=models.SET_NULL)
 
     gallery = models.ForeignKey(Gallery,
                                 verbose_name='Galerie d\'images',
-                                blank=True, null=True)
+                                blank=True, null=True, db_index=True)
 
     create_at = models.DateTimeField('Date de création')
     pubdate = models.DateTimeField('Date de publication',
-                                   blank=True, null=True)
+                                   blank=True, null=True, db_index=True)
     update = models.DateTimeField('Date de mise à jour',
                                   blank=True, null=True)
 
     sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80)
+                                  blank=True, null=True, max_length=80, db_index=True)
     sha_beta = models.CharField('Sha1 de la version beta publique',
-                                blank=True, null=True, max_length=80)
+                                blank=True, null=True, max_length=80, db_index=True)
     sha_validation = models.CharField('Sha1 de la version en validation',
-                                      blank=True, null=True, max_length=80)
+                                      blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
-                                 blank=True, null=True, max_length=80)
+                                 blank=True, null=True, max_length=80, db_index=True)
 
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
-                                blank=True, null=True)
+                                blank=True, null=True, db_index=True)
 
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
 
     introduction = models.CharField(
         'chemin relatif introduction',
@@ -103,6 +111,9 @@ class Tutorial(models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
+
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_tutorial', args=[
             self.pk, slugify(self.title)
@@ -122,7 +133,8 @@ class Tutorial(models.Model):
             return self.get_absolute_url()
 
     def get_edit_url(self):
-        return '/tutorial/editer?tutorial={0}'.format(self.pk)
+        return reverse('zds.tutorial.views.modify_tutorial') + \
+            '?tutorial={0}'.format(self.pk)
 
     def get_parts(self):
         return Part.objects.all()\
@@ -135,18 +147,18 @@ class Tutorial(models.Model):
         return Chapter.objects.get(tutorial__pk=self.pk)
 
     def in_beta(self):
-        return (self.sha_beta is not None) and (self.sha_beta != '')
+        return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
     def in_validation(self):
         return (
             self.sha_validation is not None) and (
-            self.sha_validation != '')
+            self.sha_validation.strip() != '')
 
     def in_drafting(self):
-        return (self.sha_draft is not None) and (self.sha_draft != '')
+        return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def on_line(self):
-        return (self.sha_public is not None) and (self.sha_public != '')
+        return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def is_mini(self):
         return self.type == 'MINI'
@@ -158,14 +170,13 @@ class Tutorial(models.Model):
         if relative:
             return ''
         else:
-            return os.path.join(
-                settings.REPO_PATH, str(
-                    self.pk) + '_' + self.slug)
+            return os.path.join(settings.REPO_PATH, self.get_phy_slug())
 
     def get_prod_path(self):
         data = self.load_json_for_public()
         return os.path.join(
-            settings.REPO_PATH_PROD, str(self.pk) + '_' + slugify(data['title']))
+            settings.REPO_PATH_PROD,
+            str(self.pk) + '_' + slugify(data['title']))
 
     def load_dic(self, mandata):
         mandata['get_absolute_url_online'] = self.get_absolute_url_online()
@@ -186,7 +197,7 @@ class Tutorial(models.Model):
     def load_json_for_public(self):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(self.sha_public).tree, 'manifest.json')
-        data = json.loads(mantuto)
+        data = json_reader.loads(mantuto)
 
         return data
 
@@ -202,7 +213,7 @@ class Tutorial(models.Model):
 
         if os.path.isfile(man_path):
             json_data = open(man_path)
-            data = json.load(json_data)
+            data = json_reader.load(json_data)
             json_data.close()
 
             return data
@@ -216,7 +227,7 @@ class Tutorial(models.Model):
             man_path = path
 
         dct = export_tutorial(self)
-        data = json.dumps(dct, indent=4, ensure_ascii=False)
+        data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
         json_data.write(data.encode('utf-8'))
         json_data.close()
@@ -292,6 +303,22 @@ class Tutorial(models.Model):
                 .latest('note__pubdate').note
         except Note.DoesNotExist:
             return self.first_post()
+    
+    def first_unread_note(self):
+        """Return the first note the user has unread."""
+        try:
+            last_note = TutorialRead.objects\
+                .filter(tutorial=self, user=get_current_user())\
+                .latest('note__pubdate').note
+
+            next_note = Note.objects.filter(
+                tutorial__pk=self.pk,
+                pubdate__gt=last_note.pubdate)\
+                .select_related("author").first()
+
+            return next_note
+        except:
+            return self.first_note()
 
     def antispam(self, user=None):
         """Check if the user is allowed to post in an tutorial according to the
@@ -317,6 +344,14 @@ class Tutorial(models.Model):
             if t.total_seconds() < settings.SPAM_LIMIT_SECONDS:
                 return True
         return False
+    
+    def update_children(self):
+        for part in self.get_parts():
+            part.update_children()
+        
+        chapter = self.get_chapter()
+        if chapter:
+            chapter.update_children()
 
 
 def get_last_tutorials():
@@ -335,7 +370,7 @@ class Note(Comment):
         verbose_name = 'note sur un tutoriel'
         verbose_name_plural = 'notes sur un tutoriel'
 
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel')
+    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
 
     def __unicode__(self):
         """Textual form of a post."""
@@ -362,9 +397,9 @@ class TutorialRead(models.Model):
         verbose_name = 'Tutoriel lu'
         verbose_name_plural = 'Tutoriels lus'
 
-    tutorial = models.ForeignKey(Tutorial)
-    note = models.ForeignKey(Note)
-    user = models.ForeignKey(User, related_name='tuto_notes_read')
+    tutorial = models.ForeignKey(Tutorial, db_index=True)
+    note = models.ForeignKey(Note, db_index=True)
+    user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
 
     def __unicode__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
@@ -405,8 +440,8 @@ class Part(models.Model):
 
     # A part has to belong to a tutorial, since only tutorials with parts
     # are large tutorials
-    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel parent')
-    position_in_tutorial = models.IntegerField('Position dans le tutoriel')
+    tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel parent', db_index=True)
+    position_in_tutorial = models.IntegerField('Position dans le tutoriel', db_index=True)
 
     title = models.CharField('Titre', max_length=80)
 
@@ -430,13 +465,17 @@ class Part(models.Model):
         super(Part, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'<Partie pour {0}, {1}>'.format\
-            (self.tutorial.title, self.position_in_tutorial)
+        return u'<Partie pour {0}, {1}>' \
+            .format(self.tutorial.title, self.position_in_tutorial)
+
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
         return reverse('zds.tutorial.views.view_part', args=[
             self.tutorial.pk,
             self.tutorial.slug,
+            self.pk,
             self.slug,
         ])
 
@@ -444,6 +483,7 @@ class Part(models.Model):
         return reverse('zds.tutorial.views.view_part_online', args=[
             self.tutorial.pk,
             self.tutorial.slug,
+            self.pk,
             self.slug,
         ])
 
@@ -453,12 +493,9 @@ class Part(models.Model):
 
     def get_path(self, relative=False):
         if relative:
-            return self.slug
+            return self.get_phy_slug()
         else:
-            return os.path.join(
-                os.path.join(
-                    settings.REPO_PATH, str(
-                        self.tutorial.pk) + '_' + self.tutorial.slug), self.slug)
+            return os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
 
     def get_introduction(self):
         intro = open(
@@ -506,6 +543,13 @@ class Part(models.Model):
 
         return conclu_contenu.decode('utf-8')
 
+    def update_children(self):
+        self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
+        self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
+        self.save()
+        for chapter in self.get_chapters():
+            chapter.update_children()
+
 
 class Chapter(models.Model):
 
@@ -517,10 +561,10 @@ class Chapter(models.Model):
     # A chapter may belong to a part, that's where the difference between large
     # and small tutorials is.
     part = models.ForeignKey(Part, null=True, blank=True,
-                             verbose_name='Partie parente')
+                             verbose_name='Partie parente', db_index=True)
 
     position_in_part = models.IntegerField('Position dans la partie',
-                                           null=True, blank=True)
+                                           null=True, blank=True, db_index=True)
 
     image = models.ForeignKey(Image,
                               verbose_name='Image du chapitre',
@@ -533,7 +577,7 @@ class Chapter(models.Model):
     # If the chapter doesn't belong to a part, it's a small tutorial; we need
     # to bind informations about said tutorial directly
     tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
-                                 verbose_name='Tutoriel parent')
+                                 verbose_name='Tutoriel parent', db_index=True)
 
     title = models.CharField('Titre', max_length=80, blank=True)
 
@@ -559,20 +603,23 @@ class Chapter(models.Model):
         if self.tutorial:
             return u'<minituto \'{0}\'>'.format(self.tutorial.title)
         elif self.part:
-            return u'<bigtuto \'{0}\', \'{1}\'>'.format \
-                (self.part.tutorial.title, self.title)
+            return u'<bigtuto \'{0}\', \'{1}\'>' \
+                .format(self.part.tutorial.title, self.title)
         else:
             return u'<orphelin>'
+
+    def get_phy_slug(self):
+        return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
         if self.tutorial:
             return self.tutorial.get_absolute_url()
 
         elif self.part:
-            return self.part.get_absolute_url() + '{0}/'.format(self.slug)
+            return self.part.get_absolute_url() + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
-            return '/tutoriels/'
+            return reverse('zds.tutorial.views.index')
 
     def get_absolute_url_online(self):
         if self.tutorial:
@@ -580,15 +627,15 @@ class Chapter(models.Model):
 
         elif self.part:
             return self.part.get_absolute_url_online(
-            ) + '{0}/'.format(self.slug)
+            ) + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
-            return '/tutoriels/'
+            return reverse('zds.tutorial.views.index')
 
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()
 
-    def extracts(self):
+    def get_extracts(self):
         return Extract.objects.all()\
             .filter(chapter__pk=self.pk)\
             .order_by('position_in_chapter')
@@ -616,21 +663,17 @@ class Chapter(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.tutorial:
-                chapter_path = self.slug
+                chapter_path = self.get_phy_slug()
             else:
-                chapter_path = os.path.join(self.part.slug, self.slug)
+                chapter_path = os.path.join(self.part.get_phy_slug(), self.get_phy_slug())
         else:
             if self.tutorial:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        settings.REPO_PATH, str(
-                            self.tutorial.pk) + '_' + self.tutorial.slug), self.slug)
+                chapter_path = os.path.join(settings.REPO_PATH, self.tutorial.get_phy_slug(), self.get_phy_slug())
             else:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        os.path.join(
-                            settings.REPO_PATH, str(
-                                self.part.tutorial.pk) + '_' + self.part.tutorial.slug), self.part.slug), self.slug)
+                chapter_path = os.path.join(settings.REPO_PATH,
+                                            self.part.tutorial.get_phy_slug(),
+                                            self.part.get_phy_slug(),
+                                            self.get_phy_slug())
 
         return chapter_path
 
@@ -726,6 +769,12 @@ class Chapter(models.Model):
         else:
             return None
 
+    def update_children(self):
+        self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
+        self.conclusion = os.path.join(self.get_phy_slug(), "conclusion.md")
+        self.save()
+        for extract in self.get_extracts():
+            extract.update_children()
 
 class Extract(models.Model):
 
@@ -735,8 +784,8 @@ class Extract(models.Model):
         verbose_name_plural = 'Extraits'
 
     title = models.CharField('Titre', max_length=80)
-    chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent')
-    position_in_chapter = models.IntegerField('Position dans le chapitre')
+    chapter = models.ForeignKey(Chapter, verbose_name='Chapitre parent', db_index=True)
+    position_in_chapter = models.IntegerField('Position dans le chapitre', db_index=True)
 
     text = models.CharField(
         'chemin relatif du texte',
@@ -764,50 +813,47 @@ class Extract(models.Model):
     def get_path(self, relative=False):
         if relative:
             if self.chapter.tutorial:
-                chapter_path = self.chapter.slug
+                chapter_path = ''
             else:
                 chapter_path = os.path.join(
-                    self.chapter.part.slug,
-                    self.chapter.slug)
+                    self.chapter.part.get_phy_slug(),
+                    self.chapter.get_phy_slug())
         else:
             if self.chapter.tutorial:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        settings.REPO_PATH, str(
-                            self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug), self.chapter.slug)
+                chapter_path = os.path.join(settings.REPO_PATH, self.chapter.tutorial.get_phy_slug())
             else:
-                chapter_path = os.path.join(
-                    os.path.join(
-                        os.path.join(
-                            settings.REPO_PATH,
-                            str(
-                                self.chapter.part.tutorial.pk) +
-                            '_' +
-                            self.chapter.part.tutorial.slug),
-                        self.chapter.part.slug),
-                    self.chapter.slug)
+                chapter_path = os.path.join(settings.REPO_PATH,
+                                            self.chapter.part.tutorial.get_phy_slug(),
+                                            self.chapter.part.get_phy_slug(),
+                                            self.chapter.get_phy_slug())
 
-        return os.path.join(chapter_path, slugify(self.title) + '.md')
+        return os.path.join(chapter_path, str(self.pk) + "_" + slugify(self.title)) + '.md'
 
     def get_prod_path(self):
+        
         if self.chapter.tutorial:
-            chapter_path = os.path.join(
-                os.path.join(
-                    settings.REPO_PATH_PROD, str(
-                        self.chapter.tutorial.pk) + '_' + self.chapter.tutorial.slug), self.chapter.slug)
+            data = self.chapter.tutorial.load_json_for_public()
+            mandata = tutorial.load_dic(data)
+            if "chapter" in mandata:
+                for ext in mandata["chapter"]["extracts"]:
+                    if ext['pk'] == self.pk:
+                        return os.path.join(settings.REPO_PATH_PROD,
+                                            str(self.chapter.tutorial.pk) + '_' + slugify(mandata['title']),
+                                            str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                            + '.md.html'
         else:
-            chapter_path = os.path.join(
-                os.path.join(
-                    os.path.join(
-                        settings.REPO_PATH_PROD,
-                        str(
-                            self.chapter.part.tutorial.pk) +
-                        '_' +
-                        self.chapter.part.tutorial.slug),
-                    self.chapter.part.slug),
-                self.chapter.slug)
-
-        return os.path.join(chapter_path, slugify(self.title) + '.md.html')
+            data = self.chapter.part.tutorial.load_json_for_public()
+            mandata = tutorial.load_dic(data)
+            for part in mandata["parts"]:
+                for chapter in part["chapters"]:
+                    for ext in chapter["extracts"]:
+                        if ext['pk'] == self.pk:
+                            chapter_path = os.path.join(settings.REPO_PATH_PROD,
+                                                        str(mandata['pk']) + '_' + slugify(mandata['title']),
+                                                        str(part['pk']) + "_" + slugify(part['title']),
+                                                        str(chapter['pk']) + "_" + slugify(chapter['title']),
+                                                        str(ext['pk']) + "_" + slugify(ext['title'])) \
+                                                        + '.md.html'
 
     def get_text(self):
         if self.chapter.tutorial:
@@ -848,7 +894,6 @@ class Extract(models.Model):
         else:
             return None
 
-
 class Validation(models.Model):
 
     """Tutorial validation."""
@@ -857,15 +902,15 @@ class Validation(models.Model):
         verbose_name_plural = 'Validations'
 
     tutorial = models.ForeignKey(Tutorial, null=True, blank=True,
-                                 verbose_name='Tutoriel proposé')
+                                 verbose_name='Tutoriel proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
-                               blank=True, null=True, max_length=80)
-    date_proposition = models.DateTimeField('Date de proposition')
+                               blank=True, null=True, max_length=80, db_index=True)
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
     comment_authors = models.TextField('Commentaire de l\'auteur')
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_validations',
-                                  blank=True, null=True)
+                                  blank=True, null=True, db_index=True)
     date_reserve = models.DateTimeField('Date de réservation',
                                         blank=True, null=True)
     date_validation = models.DateTimeField('Date de validation',

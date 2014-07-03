@@ -1,12 +1,16 @@
 # coding: utf-8
 
-from django.db import models
 import os
 import string
 import uuid
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.encoding import smart_text
+from django.db import models
+from zds.utils import slugify
+
+from model_utils.managers import InheritanceManager
 
 
 def image_path_category(instance, filename):
@@ -14,24 +18,6 @@ def image_path_category(instance, filename):
     ext = filename.split('.')[-1]
     filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('categorie/normal', str(instance.pk), filename)
-
-
-class Alert(models.Model):
-
-    class Meta:
-        verbose_name = 'Alerte'
-        verbose_name_plural = 'Alertes'
-
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='alerts')
-    text = models.TextField('Texte d\'alerte')
-    pubdate = models.DateTimeField(
-        'Date de publication',
-        blank=True,
-        null=True)
-
-    def __unicode__(self):
-        return u'{0}'.format(self.text)
 
 
 class Category(models.Model):
@@ -61,19 +47,31 @@ class Category(models.Model):
         return Tutorial.objects.filter(
             subcategory__in=msct).exclude(
             sha_public=None).exclude(
-            sha_public='').all()
+            sha_public__isnull=True).all()
 
     def get_all_subcategories(self):
         """Get all subcategories of a category (not main include)"""
-        return CategorySubCategory.objects \
+        csc = []
+        catsubcats = CategorySubCategory.objects \
             .filter(category__in=[self]) \
             .all()
+        for catsubcat in catsubcats:
+            if catsubcat.subcategory.get_tutos().count() > 0:
+                csc.append(catsubcat)
+        return csc
 
     def get_subcategories(self):
         """Get only main subcategories of a category."""
-        return CategorySubCategory.objects \
-            .filter(category__in=[self]                    , is_main=True)\
+        csc = []
+        catsubcats = CategorySubCategory.objects \
+            .filter(category__in=[self], is_main=True)\
+            .select_related('subcategory')\
             .all()
+        
+        for catsubcat in catsubcats:
+            if catsubcat.subcategory.get_tutos().count() > 0:
+                csc.append(catsubcat)
+        return csc
 
 
 class SubCategory(models.Model):
@@ -102,7 +100,8 @@ class SubCategory(models.Model):
         return Tutorial.objects.filter(
             subcategory__in=[self]).exclude(
             sha_public=None).exclude(
-            sha_public='').all()
+            sha_public='').exclude(
+            sha_public__isnull=True).all()
 
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')
@@ -123,9 +122,9 @@ class CategorySubCategory(models.Model):
         verbose_name = 'Hierarchie catégorie'
         verbose_name_plural = 'Hierarchies catégories'
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie')
-    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie')
-    is_main = models.BooleanField('Est la catégorie principale', default=True)
+    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True)
+    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
+    is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
     def __unicode__(self):
         """Textual Link Form."""
@@ -162,14 +161,16 @@ class Comment(models.Model):
         verbose_name = 'Commentaire'
         verbose_name_plural = 'Commentaires'
 
+    objects = InheritanceManager()
+
     author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='comments')
+                               related_name='comments', db_index=True)
     editor = models.ForeignKey(User, verbose_name='Editeur',
                                related_name='comments-editor',
                                null=True, blank=True)
-    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=15)
+    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 
-    position = models.IntegerField('Position')
+    position = models.IntegerField('Position', db_index=True)
 
     text = models.TextField('Texte')
     text_html = models.TextField('Texte en Html')
@@ -177,7 +178,7 @@ class Comment(models.Model):
     like = models.IntegerField('Likes', default=0)
     dislike = models.IntegerField('Dislikes', default=0)
 
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)
 
     is_visible = models.BooleanField('Est visible', default=True)
@@ -185,12 +186,6 @@ class Comment(models.Model):
         'Texte de masquage ',
         max_length=80,
         default='')
-
-    alerts = models.ManyToManyField(
-        Alert,
-        verbose_name='Alertes',
-        null=True,
-        blank=True)
 
     def get_like_count(self):
         """Gets number of like for the post."""
@@ -201,6 +196,50 @@ class Comment(models.Model):
         return CommentDislike.objects.filter(comments__pk=self.pk).count()
 
 
+class Alert(models.Model):
+
+    """Alerts on all kinds of Comments."""
+
+    ARTICLE = 'A'
+    FORUM = 'F'
+    TUTORIAL = 'T'
+    SCOPE_CHOICES = (
+        (ARTICLE, 'Commentaire d\'article'),
+        (FORUM, 'Forum'),
+        (TUTORIAL, 'Commentaire de tuto'),
+    )
+
+    author = models.ForeignKey(User,
+                               verbose_name='Auteur',
+                               related_name='alerts',
+                               db_index=True)
+    comment = models.ForeignKey(Comment,
+                                verbose_name='Commentaire',
+                                related_name='alerts',
+                                db_index=True)
+    scope = models.CharField(max_length=1, choices=SCOPE_CHOICES, db_index=True)
+    text = models.TextField('Texte d\'alerte')
+    pubdate = models.DateTimeField('Date de publication', db_index=True)
+
+    def get_comment(self):
+        return Comment.objects.get(id=self.comment.id)
+
+    def get_comment_subclass(self):
+        """Used to retrieve comment URLs (simple call to get_absolute_url
+        doesn't work: objects are retrived as Comment and not subclasses) As
+        real Comment implementation (subclasses) can't be hard-coded due to
+        unresolvable import loops, use InheritanceManager from django-model-
+        utils."""
+        return Comment.objects.get_subclass(id=self.comment.id)
+
+    def __unicode__(self):
+        return u'{0}'.format(self.text)
+
+    class Meta:
+        verbose_name = 'Alerte'
+        verbose_name_plural = 'Alertes'
+
+
 class CommentLike(models.Model):
 
     """Set of like comments."""
@@ -208,8 +247,8 @@ class CommentLike(models.Model):
         verbose_name = 'Ce message est utile'
         verbose_name_plural = 'Ces messages sont utiles'
 
-    comments = models.ForeignKey(Comment)
-    user = models.ForeignKey(User, related_name='post_liked')
+    comments = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, related_name='post_liked', db_index=True)
 
 
 class CommentDislike(models.Model):
@@ -219,5 +258,25 @@ class CommentDislike(models.Model):
         verbose_name = 'Ce message est inutile'
         verbose_name_plural = 'Ces messages sont inutiles'
 
-    comments = models.ForeignKey(Comment)
-    user = models.ForeignKey(User, related_name='post_disliked')
+    comments = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
+
+
+class Tag(models.Model):
+
+    """Set of tags."""
+
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+    title = models.CharField(max_length=20, verbose_name='Titre')
+    slug = models.SlugField(max_length=20)
+
+    def __unicode__(self):
+        """Textual Link Form."""
+        return u"{0}".format(self.title)
+
+    def save(self, *args, **kwargs):
+        self.title = smart_text(self.title).lower()
+        self.slug = slugify(self.title)
+        super(Tag, self).save(*args, **kwargs)

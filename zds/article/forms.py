@@ -13,7 +13,7 @@ from zds.utils.models import SubCategory
 class ArticleForm(forms.Form):
     title = forms.CharField(
         label='Titre',
-        max_length = Article._meta.get_field('title').max_length,
+        max_length=Article._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -22,7 +22,7 @@ class ArticleForm(forms.Form):
     )
 
     description = forms.CharField(
-        max_length = Article._meta.get_field('description').max_length,
+        max_length=Article._meta.get_field('description').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -54,7 +54,7 @@ class ArticleForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ArticleForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -117,10 +117,13 @@ class ReactionForm(forms.Form):
         )
 
         if article.antispam(user):
-            self.helper['text'].wrap(
-                Field,
-                placeholder=u'Vous ne pouvez pas encore poster sur cet article (protection antispam de 15 min).',
-                disabled=True)
+            if 'text' not in self.initial:
+                self.helper['text'].wrap(
+                    Field,
+                    placeholder=u'Vous venez de poster. Merci de patienter '
+                    u'au moins 15 minutes entre deux messages consécutifs '
+                    u'afin de limiter le flood.',
+                    disabled=True)
         elif article.is_locked:
             self.helper['text'].wrap(
                 Field,

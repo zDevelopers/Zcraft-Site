@@ -3,7 +3,7 @@
 from django import template
 
 from zds.forum.models import Category as fCategory
-from zds.utils.models import Category as Category
+from zds.utils.models import Category, SubCategory, CategorySubCategory
 
 
 register = template.Library()
@@ -15,6 +15,7 @@ def top_categories(user):
 
     return categories
 
+
 @register.filter('auth_forums')
 def auth_forums(forums, user):
     auth = []
@@ -25,8 +26,17 @@ def auth_forums(forums, user):
     return auth
 
 
+@register.filter('auth_forum')
+def auth_forum(forum, user):
+    return forum.can_read(user)
+
+
 @register.filter('top_categories_tuto')
 def top_categories_tuto(user):
+    cats = []
     categories = Category.objects.all()
-
-    return categories
+    for categorie in categories :
+        if categorie.get_tutos().count() > 0:
+            cats.append(categorie)
+    
+    return cats

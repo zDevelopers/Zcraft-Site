@@ -1,29 +1,60 @@
 # coding: utf-8
 
-from crispy_forms.bootstrap import StrictButton
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Field, HTML, ButtonHolder
+import os
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from zds.member.models import Profile
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Layout, \
+    Submit, Field, ButtonHolder, Hidden
+from zds.member.models import Profile, listing
+from zds.settings import SITE_ROOT
 
 # Max password length for the user.
-# Unlike other fileds, this is not the length of DB field
+# Unlike other fields, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
+# Min password length for the user.
+MIN_PASSWORD_LENGTH = 6
+
+
+class OldTutoForm(forms.Form):
+
+    id = forms.ChoiceField(
+        label='Ancien Tutoriel',
+        required=True,
+        choices=listing(),
+    )
+
+    def __init__(self, profile, *args, **kwargs):
+        super(OldTutoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('zds.member.views.add_oldtuto')
+
+        self.helper.layout = Layout(
+            Field('id'),
+            Hidden('profile_pk', '{{ profile.pk }}'),
+            ButtonHolder(
+                StrictButton('Attribuer', type='submit'),
+            ),
+        )
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(
         label='Identifiant',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
     )
 
     password = forms.CharField(
         label='Mot magique',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
@@ -33,14 +64,13 @@ class LoginForm(forms.Form):
         choices=(
             ('remember', "Connexion automatique"),
         ),
-        initial = 'remember',
-        widget = forms.CheckboxSelectMultiple,
+        initial='remember',
+        widget=forms.CheckboxSelectMultiple,
     )
 
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
         self.helper.form_action = reverse('zds.member.views.login_view')
         self.helper.form_method = 'post'
 
@@ -50,39 +80,37 @@ class LoginForm(forms.Form):
             Field('remember'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Se connecter',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                StrictButton('Se connecter', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}">Mot de passe oublié ?</a>'),
         )
 
 
 class RegisterForm(forms.Form):
     email = forms.EmailField(
-        label='Adresse e-mail',
-        max_length = User._meta.get_field('email').max_length,
+        label='Adresse courriel',
+        max_length=User._meta.get_field('email').max_length,
         required=True,
     )
 
     username = forms.CharField(
         label='Nom d\'utilisateur',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True,
     )
 
     password = forms.CharField(
         label='Mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmation du mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
+        min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput
     )
@@ -90,7 +118,7 @@ class RegisterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -99,11 +127,8 @@ class RegisterForm(forms.Form):
             Field('password_confirm'),
             Field('email'),
             ButtonHolder(
-                Submit(
-                    'submit',
-                    'Valider mon inscription',
-                    css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
+                Submit('submit', 'Valider mon inscription'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ))
 
     def clean(self):
@@ -115,7 +140,7 @@ class RegisterForm(forms.Form):
 
         if not password_confirm == password:
             msg = u'Les mots de passe sont différents'
-            self._errors['password'] = self.error_class([''])
+            self._errors['password'] = self.error_class([msg])
             self._errors['password_confirm'] = self.error_class([msg])
 
             if 'password' in cleaned_data:
@@ -130,17 +155,35 @@ class RegisterForm(forms.Form):
             msg = u'Ce nom d\'utilisateur est déjà utilisé'
             self._errors['username'] = self.error_class([msg])
 
-        # Check that the email is unique
+        # Check that password != username
+        if password == username:
+            msg = u'Le mot de passe doit être différent du pseudo'
+            self._errors['password'] = self.error_class([msg])
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
         email = cleaned_data.get('email')
+        if email:
+            # Chech if email provider is authorized
+            with open(os.path.join(SITE_ROOT,
+                                   'forbidden_email_providers.txt'), 'r') as fh:
+                for provider in fh:
+                    if provider.strip() in email:
+                        msg = u'Utilisez un autre fournisseur d\'adresses courriel.'
+                        self._errors['email'] = self.error_class([msg])
+                        break
+
+        # Check that the email is unique
         if User.objects.filter(email=email).count() > 0:
-            msg = u'Votre email est déjà utilisée'
+            msg = u'Votre adresse courriel est déjà utilisée'
             self._errors['email'] = self.error_class([msg])
 
         return cleaned_data
 
 
-# update extra information about user
-class ProfileForm(forms.Form):
+class MiniProfileForm(forms.Form):
     biography = forms.CharField(
         label='Biographie',
         required=False,
@@ -154,10 +197,11 @@ class ProfileForm(forms.Form):
     site = forms.CharField(
         label='Site internet',
         required=False,
-        max_length = Profile._meta.get_field('site').max_length,
+        max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers votre site internet personnel (ne pas oublier le http:// ou https:// devant).'
+                'placeholder': u'Lien vers votre site internet '
+                u'personnel (ne pas oublier le http:// ou https:// devant).'
             }
         )
     )
@@ -165,10 +209,11 @@ class ProfileForm(forms.Form):
     avatar_url = forms.CharField(
         label='Avatar',
         required=False,
-        max_length = Profile._meta.get_field('avatar_url').max_length,
+        max_length=Profile._meta.get_field('avatar_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': 'Lien vers un avatar externe (laisser vide pour utiliser Gravatar).'
+                'placeholder': u'Lien vers un avatar externe '
+                u'(laissez vide pour utiliser Gravatar).'
             }
         )
     )
@@ -176,7 +221,7 @@ class ProfileForm(forms.Form):
     sign = forms.CharField(
         label='Signature',
         required=False,
-        max_length = Profile._meta.get_field('sign').max_length,
+        max_length=Profile._meta.get_field('sign').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Elle apparaitra dans les messages de forums. '
@@ -184,21 +229,43 @@ class ProfileForm(forms.Form):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super(MiniProfileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('biography'),
+            Field('site'),
+            Field('avatar_url'),
+            Field('sign'),
+            ButtonHolder(
+                StrictButton('Editer le profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+            ))
+
+# update extra information about user
+
+
+class ProfileForm(MiniProfileForm):
     options = forms.MultipleChoiceField(
         label='',
         required=False,
         choices=(
-            ('show_email', "Afficher mon adresse e-mail publiquement"),
+            ('show_email', "Afficher mon adresse courriel publiquement"),
             ('show_sign', "Afficher les signatures"),
-            ('hover_or_click', "Navigation au survol"),
+            ('hover_or_click', "Cochez pour dérouler les menus au survol"),
+            ('email_for_answer', u'Recevez un courriel lorsque vous '
+            u'recevez une réponse à un message privé'),
         ),
-        widget = forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple,
     )
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         # to get initial value form checkbox show email
@@ -214,17 +281,24 @@ class ProfileForm(forms.Form):
         if 'hover_or_click' in initial and initial['hover_or_click']:
             self.fields['options'].initial += 'hover_or_click'
 
+        if 'email_for_answer' in initial and initial['email_for_answer']:
+            self.fields['options'].initial += 'email_for_answer'
+
         self.helper.layout = Layout(
             Field('biography'),
             Field('site'),
             Field('avatar_url'),
+            HTML(u"""
+                <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une galerie</a><br/>
+                   Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
+                   Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
+            """),
             Field('sign'),
             Field('options'),
             ButtonHolder(
-                StrictButton('Editer mon profil', type='submit', css_class='button'),
-                HTML('<a class="button secondary" href="/">Annuler</a>'),
-            )
-        )
+                StrictButton('Editer mon profil', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
+            ))
 
 # to update email/username
 
@@ -233,7 +307,8 @@ class ChangeUserForm(forms.Form):
 
     username_new = forms.CharField(
         label='Nouveau pseudo',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
+        min_length=1,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -243,8 +318,8 @@ class ChangeUserForm(forms.Form):
     )
 
     email_new = forms.EmailField(
-        label='Nouvel e-mail',
-        max_length = User._meta.get_field('email').max_length,
+        label='Nouvelle adresse courriel',
+        max_length=User._meta.get_field('email').max_length,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -256,15 +331,15 @@ class ChangeUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ChangeUserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('username_new'),
             Field('email_new'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Changer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             ),
         )
 
@@ -285,36 +360,43 @@ class ChangeUserForm(forms.Form):
             if email_new.strip() != '':
                 if User.objects.filter(email=email_new).count() >= 1:
                     self._errors['email_new'] = self.error_class(
-                        [u'Votre email est déjà utilisée'])
+                        [u'Votre adresse courriel est déjà utilisée'])
+            # Chech if email provider is authorized
+            with open(os.path.join(SITE_ROOT,
+                                   'forbidden_email_providers.txt'), 'r') as fh:
+                for provider in fh:
+                    if provider.strip() in email_new:
+                        msg = u'Utilisez un autre fournisseur d\'adresses mail.'
+                        self._errors['email_new'] = self.error_class([msg])
+                        break
 
         return cleaned_data
 
+
 # to update a password
-
-
 class ChangePasswordForm(forms.Form):
     password_new = forms.CharField(
         label='Nouveau mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_old = forms.CharField(
         label='Mot de passe actuel',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     password_confirm = forms.CharField(
         label='Confirmer le nouveau mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
     def __init__(self, user, *args, **kwargs):
         super(ChangePasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.user = user
@@ -324,8 +406,8 @@ class ChangePasswordForm(forms.Form):
             Field('password_new'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Changer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Changer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -360,6 +442,26 @@ class ChangePasswordForm(forms.Form):
             if 'password_confirm' in cleaned_data:
                 del cleaned_data['password_confirm']
 
+        # Check that the password is at least MIN_PASSWORD_LENGTH
+        if len(password_new) < MIN_PASSWORD_LENGTH:
+            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
+            self._errors['password_new'] = self.error_class([msg])
+            if 'password_new' in cleaned_data:
+                del cleaned_data['password_new']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
+        # Check that password != username
+        if password_new == self.user.username:
+            msg = u'Le mot de passe doit être différent de votre pseudo'
+            self._errors['password_new'] = self.error_class([msg])
+            if 'password_new' in cleaned_data:
+                del cleaned_data['password_new']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
         return cleaned_data
 
 # Reset the password
@@ -368,21 +470,21 @@ class ChangePasswordForm(forms.Form):
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label='Nom d\'utilisateur',
-        max_length = User._meta.get_field('username').max_length,
+        max_length=User._meta.get_field('username').max_length,
         required=True
     )
 
     def __init__(self, *args, **kwargs):
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('username'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Envoyer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -402,27 +504,28 @@ class ForgotPasswordForm(forms.Form):
 class NewPasswordForm(forms.Form):
     password = forms.CharField(
         label='Mot de passe',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
     password_confirm = forms.CharField(
         label='Confirmation',
-        max_length = MAX_PASSWORD_LENGTH,
+        max_length=MAX_PASSWORD_LENGTH,
         widget=forms.PasswordInput
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, identifier, *args, **kwargs):
         super(NewPasswordForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-alone'
+        self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
+        self.username = identifier
 
         self.helper.layout = Layout(
             Field('password'),
             Field('password_confirm'),
             ButtonHolder(
-                Submit('submit', 'Envoyer'),
-                HTML('<a class="btn btn-submit" href="/">Annuler</a>'),
+                StrictButton('Envoyer', type='submit'),
+                HTML('<a class="btn btn-cancel" href="/">Annuler</a>'),
             )
         )
 
@@ -438,6 +541,26 @@ class NewPasswordForm(forms.Form):
             self._errors['password'] = self.error_class([''])
             self._errors['password_confirm'] = self.error_class([msg])
 
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
+        # Check that the password is at least MIN_PASSWORD_LENGTH
+        if len(password) < MIN_PASSWORD_LENGTH:
+            msg = u'Le mot de passe doit faire au moins {0} caractères'.format(MIN_PASSWORD_LENGTH)
+            self._errors['password'] = self.error_class([msg])
+            if 'password' in cleaned_data:
+                del cleaned_data['password']
+
+            if 'password_confirm' in cleaned_data:
+                del cleaned_data['password_confirm']
+
+        # Check that password != username
+        if password == self.username:
+            msg = u'Le mot de passe doit être différent de votre pseudo'
+            self._errors['password'] = self.error_class([msg])
             if 'password' in cleaned_data:
                 del cleaned_data['password']
 

@@ -1,16 +1,15 @@
 # encoding: utf-8
 
-from django.conf.urls.static import static
-
 from django.conf.urls import patterns, include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
-import pages.views
-import settings
 from zds.article.models import Article
 from zds.forum.models import Category, Forum, Topic
 from zds.tutorial.models import Tutorial
+
+from . import settings
 
 
 # SiteMap data
@@ -81,9 +80,12 @@ urlpatterns = patterns('',
                        url(r'^pages/', include('zds.pages.urls')),
                        url(r'^galerie/', include('zds.gallery.urls')),
                        url(r'^teasing/', include('zds.newsletter.urls')),
-                       url(r'^rechercher/', include('haystack.urls')),
+                       url(r'^rechercher/', include('zds.search.urls')),
+                       url(r'^munin/', include('zds.munin.urls')),
 
                        url(r'^captcha/', include('captcha.urls')),
+
+                       ('^munin/', include('munin.urls')),
 
                        url(r'^$', 'zds.pages.views.home'),
 

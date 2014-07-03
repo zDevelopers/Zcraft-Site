@@ -1,0 +1,49 @@
+{% extends "tutorial/base_online.html" %}
+
+
+
+{% block title %}
+    {{ part.title }} - {{ part.tutorial.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ part.tutorial.get_absolute_url_online }}">{{ part.tutorial.title }}</a></li>
+    <li>{{ part.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h2>
+        {{ part.title }}
+    </h2>
+
+    {% include 'tutorial/includes/tags_authors.part.html' with tutorial=part.tutorial %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "tutorial/includes/part.part.html" with online=True %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if perms.tutorial.change_tutorial %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+            <h3>Admin<span class="wide">istration</span></h3>
+            <ul>
+                <li>
+                    <a href="{{ part.tutorial.get_absolute_url }}" class="ico-after offline blue">
+                        Version hors-ligne
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+
+    {% include "tutorial/includes/summary.part.html" with online=True tutorial=part.tutorial parts=part.tutorial.get_parts %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "tutorial/validation/index.html" %}
+{% load date %}
+
+
+
+{% block title %}
+    Historique de validation
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{% url "zds.tutorial.views.list_validation" %}">Validation</a></li>
+    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li>Historique</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ tutorial.title }}
+{% endblock %}
+
+
+{% block headline_sub %}
+    Historique de validation
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "tutorial/includes/tags_authors.part.html" %}
+
+    {% if validations %}
+        <table class="fullwidth">
+            <thead>
+                <tr>
+                    <th width="50%">Proposé</th>
+                    <th width="50%">Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for validation in validations %}
+                    <tr>
+                        <td>
+                            {{ validation.date_proposition|format_date|capfirst }}
+                        </td>
+                        <td>
+                            {% include "tutorial/includes/validation.part.html" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            Ce tutoriel n'a jamais été soumis en validation.
+        </p>
+    {% endif %}
+{% endblock %}

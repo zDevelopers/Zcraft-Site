@@ -1,0 +1,41 @@
+{% load date %}
+
+
+
+{% if validation.validator %}
+    Réservé par {% include "misc/member_item.part.html" with member=validation.validator avatar=True %}
+
+    {% if validation.date_reserve %}
+        {{ validation.date_reserve|format_date|capfirst }}
+        <br>
+    {% endif %}
+{% endif %}
+
+
+
+{% if validation.is_pending %}
+    <form action="{{ reservation_url }}" method="post">
+    	{% csrf_token %}
+        <button type="submit">
+            Réserver
+        </button>
+    </form>
+{% elif validation.is_pending_valid %}
+    <a href="#unreservation" class="open-modal btn btn-cancel">
+        Annuler la réservation
+    </a>
+    <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation">
+    	{% csrf_token %}
+        <p>
+            Actuellement réservé par {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
+            Êtes-vous certains de vouloir <strong>annuler la réservation</strong> ?
+        </p>
+        <button type="submit">
+            Confirmer
+        </button>
+    </form>
+{% elif validation.is_accept %}
+    Accepté
+{% elif validation.is_reject %}
+    Rejeté
+{% endif %}

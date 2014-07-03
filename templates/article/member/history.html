@@ -1,0 +1,101 @@
+{% extends "article/base_content.html" %}
+{% load emarkdown %}
+{% load date %}
+{% load profile %}
+{% load thumbnail %}
+
+
+{% block title %}
+  {{ article.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
+    <li>Historique des modifications</li>
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% include 'article/includes/sidebar_actions.part.html' %}
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if article.image %}class="illu"{% endif %}>
+        {% if article.image %}
+            <img src="{{article.image.article_illu.url }}" alt="">
+        {% endif %}
+        Historique de l'article "{{ article.title }}"
+    </h1>
+    
+    <div class="authors">
+        <span class="authors-label">Contributeurs : </span>
+        <ul>
+            {% for member in article.authors.all %}
+                <li>
+                    {% include "misc/member_item.part.html" with avatar=True %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Visbilité</th>
+            <th width="25%">Date</th>
+            <th>Version</th>
+            <th width="10%">Diff</th>
+            <th width="10%">Auteur</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+            <tr>
+                <td>
+                    {% if article.sha_public = log.newhexsha %}
+                        Publique
+                    {% elif article.sha_validation = log.newhexsha %}
+                        Validation
+                    {% elif article.sha_beta =  log.newhexsha %}
+                        Beta
+                    {% elif article.sha_draft =  log.newhexsha %}
+                        Brouillon
+                    {% endif %}
+                </td>
+                <td>
+                    {{ log.time.0|format_date:True|capfirst }}
+                </td>
+                <td>
+                    <a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}">
+                        {{ log.message }}
+                    </a>
+                </td>
+                <td>
+                    {# TODO : proposer les diffs sur les articles #}
+                    {# <a href="{% url "zds.article.views.diff" article.pk article.slug %}?sha={{ log.newhexsha }}" > #}
+                        {{ log.newhexsha|truncatechars:8 }}
+                    {# </a> #}
+                </td>
+                <td>
+                    {% with u=log.actor.name|user %}
+                        {% if u %}
+                            {% include "misc/member_item.part.html" with member=u %}
+                        {% else %}
+                            Inconnu
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,9 +1,0 @@
-Bonjour <strong>{{username}}</strong>,
-
-Merci de votre inscription sur <a href="http://zestedesavoir.com">Zeste de Savoir</a>. Pour activer votre profil, cliquez sur le lien client-dessous:
-
-{{url}}.
-
-Cordialement,
-
-L'équipe ZesteDeSavoir

@@ -1,5 +1,10 @@
-[![Build Status](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir.png?token=Cu35XY4F6RcYoPgjjcbA)](https://magnum.travis-ci.com/Taluu/ZesteDeSavoir)
+[![Build Status](https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev)](https://travis-ci.org/zestedesavoir/zds-site)
+[![Coverage Status](https://coveralls.io/repos/zestedesavoir/zds-site/badge.png?branch=dev)](https://coveralls.io/r/zestedesavoir/zds-site?branch=dev)
 [![Licnce GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
+
+
+
+
 
 ZesteDeSavoir
 =============
@@ -8,69 +13,46 @@ Site internet communautaire codé à l'aide du Framework Django 1.6.
 * Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
 * Lien de teasing : [Teasing](http://zestedesavoir.com/teasing/)
 
+
+
+
+
 Fonctionnalités implementées
 ----------------------------
 
-- La gestion du forum
+- La gestion des forums
 - La gestion des membres
 - La gestion des tutoriels
 - La gestion des articles
 - La gestion des message Privés
 - La gestion des galleries d'images
 
+
+
+
+
 Fonctionnalités à venir
 -----------------------
-Elles sont reportées essentiellement dans le [bugtraker](https://github.com/Taluu/ZesteDeSavoir/issues?state=open)
+Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues)
+
+
 
 Comment démarrer une instance de ZdS ?
 --------------------------------------
-### Pré-requis
-- Python 2.7 (avec les fichiers de developpement, le paquet `python-dev` sous Ubuntu)
-- Pip
-- git
 
-### Installation d'une version locale de ZDS
 
-**NB : si une commande ne marche pas, vérifier pourquoi avant de continuer**
+### Installation d'une version locale de ZdS
+- [Intallation sur Windows](doc/install-windows.md)
+- [Intallation sur Linux](doc/install-linux.md)
+- [Intallation sur OS X](doc/install-os-x.md)
 
-####Installation sur **Windows 7, 8** et plus
 
-- Téléchargez et installez les outils suivants :
-    - [PowerShell 3.0+](http://www.microsoft.com/fr-fr/download/details.aspx?id=40855)
-    - [MinGW](http://sourceforge.net/projects/mingw/files/latest/download)
-    - [Git](http://git-scm.com/download/win) (Git pour Eclipse ne suffit pas ; associez les .sh)
-- [Téléchargez et installez Python 2.7](https://www.python.org/ftp/python/2.7.5/python-2.7.5.msi)
-- Installez setuptools : Démarrez [Powershell](http://fr.wikipedia.org/wiki/Windows_PowerShell) **en mode administrateur** et lancez la commande suivante : `(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -`
-- Redémarrez Powershell
-- Installez pip : `easy_install pip`
-- Désactivez la sécurité sur les script powershell `Set-ExecutionPolicy RemoteSigned`
-- Installez Virtualenv avec les commandes suivante : 
-    - `pip install virtualenv`
-    - `pip install virtualenvwrapper-powershell`
-- Créez votre workspace dédié à ZdS
-    - `set $env:WORKON_HOME`
-    - `mkdir '~\.virtualenvs'`
-    - `Import-Module virtualenvwrapper`
-    - `New-VirtualEnvironment zdsenv --no-site-packages`
-- Cloner le dépot git *via la console git* (et pas via powershell) windows: `git clone https://github.com/Taluu/ZesteDeSavoir.git`
-- Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
-    - `easy_install lxml`
-    - `pip install -r requirements.txt`
-    - `python manage.py syncdb`
-    - `python manage.py migrate`
-    - `python manage.py runserver`
-- Pour redémarrer virtualenv les fois suivantes : `~\.virtualenvs\zdsenv\Scripts\activate.ps1` 
+### Mettre à jour votre version locale de ZdS
+Après avoir mis à jour votre dépot, vous devez executer les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
-####Sur Linux
-Faites les commandes suivantes au fur et à mesure (si l'une d'entre elle échoue, resolvez là avant de continuer)
-
-**NB : les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez. Si votre distribution propose Python2 par defaut (comme Ubuntu), les commandes `/usr/bin/env python2` peuvent être remplacées par `python` tout simplement.**
-
-```console
-pip install --user -r requirements.txt
-/usr/bin/env python2 manage.py syncdb
-/usr/bin/env python2 manage.py migrate
-/usr/bin/env python2 manage.py runserver
+```
+python manage.py migrate
+pip install --upgrade -r requirements.txt
 ```
 
 
@@ -78,11 +60,8 @@ pip install --user -r requirements.txt
 Pour bénéficier de données de test, exécutez les commandes suivantes, dans l'ordre, à la fin des précédentes :
 
 ```console
-/usr/bin/env python2 manage.py loaddata fixtures/users.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/forums.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/topics.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/mps.yaml
-/usr/bin/env python2 manage.py loaddata fixtures/categories.yaml
+python manage.py loaddata fixtures/users.yaml fixtures/forums.yaml fixtures/topics.yaml fixtures/mps.yaml fixtures/categories.yaml
+
 ```
 
 Cela va créer plusieurs entitées :
@@ -97,20 +76,40 @@ Cela va créer plusieurs entitées :
 * 1 mp with 3 participants
 * 3 catégories et 2 sous-catégories
 
+
 ### Conseil de developpement
 
-Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires en exécutant la suite complète :
+Avant de faire une PR, vérifiez que votre code passe tous les tests unitaires et qu'il est compatible PEP-8 (sous peine de refus de Pull Request) en exécutant les commandes suivantes, pour le back :
 
 ```console
 python manage.py test
+flake8 --exclude=migrations,urls.py --max-line-length=120 --ignore=F403,E126,E127,E128 zds
 ```
 
-Si vous modifiez le modèle, n'oubliez pas de créer les fichiers de migration :
+Pour le front :
 
 ```console
-/usr/bin/env python2 manage.py schemamigration app_name --auto
+gulp test
 ```
+
+Si vous modifiez le modèle (les fichiers models.py), n'oubliez pas de créer les fichiers de migration :
+
+```console
+python manage.py schemamigration app_name --auto
+```
+
+Si vous avez une connexion lente et que vous ne voulez travailler que sur une branche précise, vous pouvez toujours ne récupérer que celle-ci :
+
+```console
+git clone https://github.com/zestedesavoir/zds-site.git -b LA_BRANCHE --depth 1
+```
+
+
 
 En savoir plus
 --------------
-- [Comment déployer ZDS sur un serveur de production ?](https://github.com/Taluu/ZesteDeSavoir/blob/dev/doc/deploy.md)
+- [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+
+
+
+Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/))
