@@ -1,0 +1,101 @@
+[
+    {
+        "title": "Général",
+        "chapters": [
+            {
+                "title": "Installation",
+                "file": "general/installation.md"
+            },
+            {
+                "title": "Outils",
+                "file": ""
+            },
+            {
+                "title": "Dépendances",
+                "file": ""
+            },
+            {
+                "title": "Esprit / Guidelines",
+                "file": ""
+            },
+            {
+                "title": "Organisation du code",
+                "file": ""
+            }
+        ]
+    },
+
+    {
+        "title": "Interface utilisateur",
+        "chapters": [
+            {
+                "title": "Icônes",
+                "file": ""
+            },
+            {
+                "title": "Boutons",
+                "file": ""
+            },
+            {
+                "title": "Formulaires",
+                "file": ""
+            },
+            {
+                "title": "Assistant d'édition Markdown",
+                "file": ""
+            },
+            {
+                "title": "Boites modales",
+                "file": ""
+            }
+        ]
+    },
+
+    {
+        "title": "Eléments récurents",
+        "chapters": [
+            {
+                "title": "Titres et sous-titres",
+                "file": ""
+            },
+            {
+                "title": "Tags",
+                "file": ""
+            },
+            {
+                "title": "Auteurs",
+                "file": ""
+            },
+            {
+                "title": "Flux de messages",
+                "file": ""
+            }
+        ]
+    },
+
+    {
+        "title": "Barre latérale",
+        "chapters": [
+            {
+                "title": "Les blocs",
+                "file": ""
+            },
+            {
+                "title": "Sommaires",
+                "file": ""
+            },
+            {
+                "title": "Menus accordéon",
+                "file": ""
+            },
+            {
+                "title": "Menu mobile",
+                "file": ""
+            },
+            {
+                "title": "Autres",
+                "file": ""
+            }
+        ]
+    }
+]

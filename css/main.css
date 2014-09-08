@@ -1,0 +1,13 @@
+.sidebar-filter li:hover {
+    background: none !important;
+}
+.sidebar-filter input {
+    height: 30px;
+    text-indent: 7px;
+    border: 1px solid #CCC;
+    width: 97%;
+}
+.sidebar-filter input:focus {
+    outline-color: #F8AD32;
+    border-color: #F8AD32;
+}
