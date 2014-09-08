@@ -22,6 +22,13 @@ zdsdocApp.config(['$routeProvider',
             });
     }
 ]);
+zdsdocApp.config(['markedProvider', function(markedProvider) {
+    markedProvider.setOptions({
+        highlight: function(code){
+            return hljs.highlightAuto(code).value;
+        }
+    });
+}]);
 
 
 
@@ -38,6 +45,7 @@ zdsdocApp.controller('IndexCtrl', ['$rootScope', '$scope', '$http',
 zdsdocApp.controller('HomeCtrl', ['$rootScope',
     function($rootScope){
         $rootScope.breadcrumb = [];
+        $rootScope.editable = false;
     }
 ]);
 
@@ -46,6 +54,7 @@ zdsdocApp.controller('HomeCtrl', ['$rootScope',
 zdsdocApp.controller('ErrorCtrl', ['$rootScope',
     function($rootScope){
         $rootScope.breadcrumb = ["Erreur"];
+        $rootScope.editable = false;
     }
 ]);
 
@@ -54,19 +63,24 @@ zdsdocApp.controller('ErrorCtrl', ['$rootScope',
 zdsdocApp.controller('ChapterCtrl', ['$rootScope', '$scope', '$routeParams', '$http', '$location',
     function($rootScope, $scope, $routeParams, $http, $location){
         var file = $routeParams.part + '/' + $routeParams.chapter + '.md';
+        $rootScope.filePath = file;
+
         $http.get('src-doc/' + file)
         .success(function(data){
             $scope.chapter = data;
-            $rootScope.breadcrumb = [];
+            $rootScope.editable = true;
+            var breadcrumb = [];
 
             for(var p in $rootScope.summary){
                 var part = $rootScope.summary[p];
                 for(var c in part.chapters){
                     var chapter = part.chapters[c];
-                    if(chapter.file === file)
-                        $rootScope.breadcrumb.push(part.title, chapter.title);
+                    if(part.folder + '/' + chapter.file + '.md' === file)
+                        breadcrumb.push(part.title, chapter.title);
                 }
             }
+
+            $rootScope.breadcrumb = breadcrumb;
         })
         .error(function(data){
             $location.url('/erreur');

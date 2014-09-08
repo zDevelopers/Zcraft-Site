@@ -11,3 +11,21 @@
     outline-color: #F8AD32;
     border-color: #F8AD32;
 }
+
+.main .content-container .article-content {
+    margin-top: 0;
+}
+
+pre code {
+    display: block;
+    padding: 5px 15px;
+    font-size: 14px;
+    background-color: #EDEDED;
+    border: 1px solid #CCC;
+    line-height: 17px;
+}
+
+.main .content-container .edit-on-github {
+    float: right;
+    margin-top: -2px;
+}

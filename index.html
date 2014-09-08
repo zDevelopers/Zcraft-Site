@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
     <link rel="stylesheet" href="//zestedesavoir.com/static/css/main.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/github.min.css">
     <link rel="stylesheet" href="css/main.css">
 
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
@@ -51,9 +52,13 @@
             <div class="main wrapper clearfix">
                 <main class="content-container" role="main" id="content">
                     <div class="content-wrapper">
-                        <div class="article-content">
-                            <div ng-view></div>
-                        </div>
+                        <a href="https://github.com/zestedesavoir/zds-site/edit/gh-pages/src-doc/{{ filePath }}"
+                           class="btn btn-grey edit-on-github"
+                           ng-if="editable"
+                        >
+                            Editer sur Github
+                        </a>
+                        <div class="article-content" ng-view></div>
                     </div>
                 </main>
 
@@ -71,7 +76,7 @@
                             <h4><span class="mobile-menu-link">{{ part.title }}</span></h4>
                             <ul>
                                 <li ng-repeat="chapter in part.chapters | filter:query">
-                                    <a href="#{{ chapter.file.replace('.md', '') }}">
+                                    <a href="#/{{ part.folder }}/{{ chapter.file }}">
                                         {{ chapter.title }}
                                     </a>
                                 </li>
@@ -117,6 +122,7 @@
     <script src="bower_components/angular-route/angular-route.min.js"></script>
     <script src="bower_components/marked/lib/marked.js"></script>
     <script src="bower_components/angular-marked/angular-marked.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

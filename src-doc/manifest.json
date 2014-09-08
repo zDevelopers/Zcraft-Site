@@ -1,58 +1,61 @@
 [
     {
         "title": "Général",
+        "folder": "general",
         "chapters": [
             {
                 "title": "Installation",
-                "file": "general/installation.md"
+                "file": "installation"
             },
             {
                 "title": "Outils",
-                "file": "general/outils.md"
+                "file": "outils"
             },
             {
                 "title": "Dépendances",
-                "file": ""
+                "file": "dependances"
             },
             {
                 "title": "Esprit / Guidelines",
-                "file": ""
+                "file": "esprit-guidelines"
             },
             {
                 "title": "Organisation du code",
-                "file": ""
+                "file": "organisation-code"
             }
         ]
     },
 
     {
         "title": "Interface utilisateur",
+        "folder": "interface-utilisateur",
         "chapters": [
             {
                 "title": "Icônes",
-                "file": ""
+                "file": "icones"
             },
             {
                 "title": "Boutons",
-                "file": ""
+                "file": "boutons"
             },
             {
                 "title": "Formulaires",
-                "file": ""
+                "file": "formulaires"
             },
             {
                 "title": "Assistant d'édition Markdown",
-                "file": ""
+                "file": "assistant-edition-markdown"
             },
             {
                 "title": "Boites modales",
-                "file": ""
+                "file": "boites-modales"
             }
         ]
     },
 
     {
         "title": "Eléments récurents",
+        "folder": "elements-recurents",
         "chapters": [
             {
                 "title": "Titres et sous-titres",
@@ -75,6 +78,7 @@
 
     {
         "title": "Barre latérale",
+        "folder": "barre-laterale",
         "chapters": [
             {
                 "title": "Les blocs",
