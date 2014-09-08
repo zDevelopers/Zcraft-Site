@@ -28,7 +28,7 @@
                     <div class="mobile-menu-btn ico-after"></div>
 
                     <div class="header-logo">
-                        <a href="/" class="header-logo-link" data-title="Documentation">
+                        <a href="/#" class="header-logo-link" data-title="Documentation">
                             Documentation de Zeste de Savoir
                         </a>
                     </div>
@@ -38,7 +38,7 @@
             <div class="clearfix sub-header">
                 <div class="wrapper breadcrumb">
                     <ol>
-                        <li><a href="/">Accueil</a></li>
+                        <li><a href="/#">Documentation</a></li>
                     </ol>
                 </div>
             </div>
@@ -49,7 +49,9 @@
         <div class="main-container">
             <div class="main wrapper clearfix">
                 <main class="content-container" role="main" id="content">
-                    <div ng-view></div>
+                    <div class="content-wrapper">
+                        <div ng-view></div>
+                    </div>
                 </main>
 
                 <aside class="sidebar">
@@ -63,7 +65,7 @@
                         </ul>
 
                         <div ng-repeat="part in summary">
-                            <h4><a href="" class="mobile-menu-link">{{ part.title }}</a></h4>
+                            <h4><span class="mobile-menu-link">{{ part.title }}</span></h4>
                             <ul>
                                 <li ng-repeat="chapter in part.chapters | filter:query">
                                     <a href="#{{ chapter.file.replace('.md', '') }}">
@@ -110,6 +112,8 @@
     <script src="//zestedesavoir.com/static/js/main.min.js"></script>
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/marked/lib/marked.js"></script>
+    <script src="bower_components/angular-marked/angular-marked.min.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
