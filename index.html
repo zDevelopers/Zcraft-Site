@@ -39,6 +39,7 @@
                 <div class="wrapper breadcrumb">
                     <ol>
                         <li><a href="/#">Documentation</a></li>
+                        <li ng-repeat="item in breadcrumb">{{ item }}</li>
                     </ol>
                 </div>
             </div>
@@ -50,7 +51,9 @@
             <div class="main wrapper clearfix">
                 <main class="content-container" role="main" id="content">
                     <div class="content-wrapper">
-                        <div ng-view></div>
+                        <div class="article-content">
+                            <div ng-view></div>
+                        </div>
                     </div>
                 </main>
 
