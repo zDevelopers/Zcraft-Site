@@ -13,6 +13,10 @@ zdsdocApp.config(['$routeProvider',
                 templateUrl: 'error.html',
                 controller: 'ErrorCtrl'
             }).
+            when('/interface-utilisateur/icones', {
+                templateUrl: 'icons.html',
+                controller: 'ChapterCtrl'
+            }).
             when('/:part/:chapter', {
                 template: '<div marked="chapter"></div>',
                 controller: 'ChapterCtrl'
@@ -34,8 +38,13 @@ zdsdocApp.config(['markedProvider', function(markedProvider) {
 
 zdsdocApp.controller('IndexCtrl', ['$rootScope', '$scope', '$http',
     function($rootScope, $scope, $http){
-        $http.get('src-doc/manifest.json').success(function(data){
+        $http.get('src-doc/manifest.json')
+        .success(function(data){
             $rootScope.summary = data;
+        });
+        $http.get('src-doc/icons.json')
+        .success(function(data){
+            $rootScope.icons = data;
         });
     }
 ]);
@@ -62,6 +71,11 @@ zdsdocApp.controller('ErrorCtrl', ['$rootScope',
 
 zdsdocApp.controller('ChapterCtrl', ['$rootScope', '$scope', '$routeParams', '$http', '$location',
     function($rootScope, $scope, $routeParams, $http, $location){
+        if($routeParams.part === undefined){
+            $routeParams.part = 'interface-utilisateur';
+            $routeParams.chapter = 'icones';
+        }
+
         var file = $routeParams.part + '/' + $routeParams.chapter + '.md';
         $rootScope.filePath = file;
 

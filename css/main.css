@@ -18,7 +18,7 @@
 
 pre code {
     display: block;
-    padding: 5px 15px;
+    padding: 7px 15px;
     font-size: 14px;
     background-color: #EDEDED;
     border: 1px solid #CCC;
@@ -28,4 +28,40 @@ pre code {
 .main .content-container .edit-on-github {
     float: right;
     margin-top: -2px;
+}
+
+.icon-list,
+.btn {
+    font-family: "Source Sans Pro" !important;
+}
+.icon-list li {
+    list-style: none;
+    padding-left: 0;
+    float: left;
+    width: 80px;
+    height: 50px;
+    background: #BBB;
+    text-align: center;
+    margin: 5px;
+    padding: 10px;
+}
+.icon-list .ico-after {
+    display: block;
+    height: 16px;
+    width: 16px;
+    float: left;
+    margin-right: 3px;
+}
+.icon-list .icon-name {
+    display: block;
+    clear: both;
+    margin-top: 10px;
+}
+
+.hint--top {
+    cursor: pointer;
+}
+.hint--top:before,
+.hint--top:after {
+    left: 5% !important;
 }

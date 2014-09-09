@@ -1,0 +1,18 @@
+<div marked="chapter"></div>
+
+
+<p>
+    Survolez les icônes pour voir les classes à utiliser.
+</p>
+
+<ul class="icon-list">
+    <li ng-repeat="(icon, colors) in icons">
+        <span class="hint--top" data-hint=".ico-after .{{ icon }}">
+            <span class="ico-after {{ icon }}"></span>
+        </span>
+        <span class="hint--top" data-hint=".ico-after .{{ icon }} .{{ color }}" ng-repeat="color in colors">
+            <span class="ico-after {{ icon }} {{ color }}"></span>
+        </span>
+        <span class="icon-name">{{ icon }}</span>
+    </li>
+</ul>
