@@ -363,7 +363,8 @@ html {
   height: 100%;
   width: 100%;
   font-size: 62.5%;
-  overflow-x: hidden; }
+  overflow-x: hidden;
+  word-wrap: break-word; }
 
 body {
   background: #F7F7F7;
@@ -601,11 +602,11 @@ hr.clearfix {
   width: 100%;
   max-width: 240px;
   height: 60px;
-  background: url('../images/logo.png') no-repeat center center;
+  background-image: url('../images/logo.png') no-repeat center center;
   -webkit-background-size: 100% auto;
           background-size: 100% auto; }
   .header-logo-link:hover, .header-logo-link:focus {
-    opacity: 0.7; }
+    background-color: #396a81; }
 
 /* ==============
     ALL: Dropdown
@@ -749,13 +750,13 @@ hr.clearfix {
         left: 50%;
         margin: -11px 0 0 -11px; }
         .logbox .notifs-links .ico-link .notif-text.ico-messages {
-          background-position: 0px -4932px; }
+          background-position: 0px -3492px; }
         .logbox .notifs-links .ico-link .notif-text.ico-notifs {
-          background-position: 0px -5492px; }
+          background-position: 0px -4052px; }
         .logbox .notifs-links .ico-link .notif-text.ico-alerts {
           background-position: 0px -132px; }
         .logbox .notifs-links .ico-link .notif-text.ico-params {
-          background-position: 0px -5572px; }
+          background-position: 0px -4132px; }
       .logbox .notifs-links .ico-link:hover, .logbox .notifs-links .ico-link:focus, .logbox .notifs-links .ico-link.active {
         background: #396a81; }
   .logbox .dropdown {
@@ -902,7 +903,7 @@ hr.clearfix {
       margin-left: -8px;
       height: 16px;
       width: 16px;
-      background-position: 0px -6372px; }
+      background-position: 0px -4932px; }
   .search .search-more {
     display: block;
     float: left;
@@ -1198,7 +1199,7 @@ hr.clearfix {
       padding-bottom: 5px;
       margin-left: -42px;
       width: calc(105% + 25px);
-      background: -webkit-gradient(linear, left top, left bottom, from(top), color-stop(rgba(0, 0, 0, 0.07)), color-stop(3px, #F7F7F7));
+      background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.07)), color-stop(3px, #F7F7F7));
       background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.07), #F7F7F7 3px);
       background: -o-linear-gradient(top, rgba(0, 0, 0, 0.07), #F7F7F7 3px);
       background: linear-gradient(top, rgba(0, 0, 0, 0.07), #F7F7F7 3px); }
@@ -1229,7 +1230,7 @@ hr.clearfix {
     .main .content-container h1.ico-articles:after, .main .content-container h2.ico-articles:after {
       background-position: 0px -772px; }
     .main .content-container h1.ico-tutorials:after, .main .content-container h2.ico-tutorials:after {
-      background-position: 0px -7332px; }
+      background-position: 0px -5892px; }
     .main .content-container h1.illu img, .main .content-container h2.illu img {
       position: absolute;
       margin: -6px 0 0 -60px;
@@ -1380,7 +1381,7 @@ hr.clearfix {
       .search-box form button:after {
         top: 9px;
         left: 12px;
-        background-position: 0px -6372px; }
+        background-position: 0px -4932px; }
 
 .tutorial-list article, .main .article-content .tutorial-list article {
   min-height: 60px;
@@ -1807,19 +1808,19 @@ hr.clearfix {
   .main .content-container .article-content .information, .main .content-container .message-content .information {
     background: #daeaee; }
     .main .content-container .article-content .information.ico-after:after, .main .content-container .message-content .information.ico-after:after {
-      background-position: 0px -4532px; }
+      background-position: 0px -52px; }
   .main .content-container .article-content .question, .main .content-container .message-content .question {
     background: #e2daee; }
     .main .content-container .article-content .question.ico-after:after, .main .content-container .message-content .question.ico-after:after {
-      background-position: 0px -5892px; }
+      background-position: 0px -4452px; }
   .main .content-container .article-content .error, .main .content-container .message-content .error {
     background: #eedada; }
     .main .content-container .article-content .error.ico-after:after, .main .content-container .message-content .error.ico-after:after {
-      background-position: 0px -2532px; }
+      background-position: 0px -2292px; }
   .main .content-container .article-content .warning, .main .content-container .message-content .warning {
     background: #eee7da; }
     .main .content-container .article-content .warning.ico-after:after, .main .content-container .message-content .warning.ico-after:after {
-      background-position: 0px -7892px; }
+      background-position: 0px -6212px; }
   .main .content-container .article-content .spoiler-title, .main .content-container .message-content .spoiler-title {
     display: block;
     background: #EEE;
@@ -2539,6 +2540,58 @@ form.topic-message {
   left: 0;
   background: rgba(0, 0, 0, 0.7); }
 
+/* ==============
+    ALL: Icons
+   ============== */
+.ico-after.view:after {
+  background-position: 0px -6132px; }
+.ico-after.view.blue:after {
+  background-position: 0px -5972px; }
+.ico-after.edit:after {
+  background-position: 0px -2212px; }
+.ico-after.alert:after {
+  background-position: 0px -4532px; }
+.ico-after.cite:after {
+  background-position: 0px -1332px; }
+.ico-after.tick:after {
+  background-position: 0px -5812px; }
+.ico-after.tick.green:after {
+  background-position: 0px -5652px; }
+.ico-after.upvote:after {
+  background-position: 0px -5572px; }
+.ico-after.upvote.voted:after {
+  background-position: 0px -5492px; }
+.ico-after.downvote:after {
+  background-position: 0px -5412px; }
+.ico-after.downvote.voted:after {
+  background-position: 0px -5332px; }
+.ico-after.lock:after {
+  background-position: 0px -3332px; }
+.ico-after.lock.blue:after {
+  background-position: 0px -3172px; }
+.ico-after.cross:after {
+  background-position: 0px -1732px; }
+.ico-after.cross.blue:after {
+  background-position: 0px -1412px; }
+.ico-after.cross.red:after {
+  background-position: 0px -1572px; }
+.ico-after.cross.white:after {
+  background-position: 0px -1652px; }
+.ico-after.pin:after {
+  background-position: 0px -4372px; }
+.ico-after.pin.blue:after {
+  background-position: 0px -4212px; }
+.ico-after.arrow-right:after {
+  background-position: 0px -692px; }
+.ico-after.arrow-right.blue:after {
+  background-position: 0px -532px; }
+.ico-after.star:after {
+  background-position: 0px -5252px; }
+.ico-after.star.yellow:after {
+  background-position: 0px -5172px; }
+.ico-after.star.blue:after {
+  background-position: 0px -5012px; }
+
 /* ===================
     MOBILE
    =================== */
@@ -3241,7 +3294,7 @@ div.zform-popup {
       width: 22px;
       background-image: url("../images/sprite@2x.png");
       background-repeat: no-repeat;
-      background-position: 0px -4852px; }
+      background-position: 0px -3412px; }
   .page-container .header-logo {
     width: 40px;
     height: 50px;
@@ -3861,236 +3914,6 @@ div.zform-popup {
     margin: 0 auto; } }
 
 /* ===== Zeste de Savoir ====================================================
-   All icons
-   ---------------------------------
-   Author: Alex-D / Alexandre Demode
-   ========================================================================== */
-/* ==============
-    ALL: Icons
-   ============== */
-.ico-after.view:after {
-  background-position: 0px -7812px; }
-.ico-after.view.blue:after {
-  background-position: 0px -7652px; }
-.ico-after.edit:after {
-  background-position: 0px -2212px; }
-.ico-after.alert:after {
-  background-position: 0px -5972px; }
-.ico-after.cite:after {
-  background-position: 0px -1332px; }
-.ico-after.tick:after {
-  background-position: 0px -7252px; }
-.ico-after.tick.green:after {
-  background-position: 0px -7092px; }
-.ico-after.upvote:after {
-  background-position: 0px -7012px; }
-.ico-after.upvote.voted:after {
-  background-position: 0px -6932px; }
-.ico-after.downvote:after {
-  background-position: 0px -6852px; }
-.ico-after.downvote.voted:after {
-  background-position: 0px -6772px; }
-.ico-after.lock:after {
-  background-position: 0px -4772px; }
-.ico-after.lock.blue:after {
-  background-position: 0px -4612px; }
-.ico-after.cross:after {
-  background-position: 0px -1732px; }
-.ico-after.cross.blue:after {
-  background-position: 0px -1412px; }
-.ico-after.cross.red:after {
-  background-position: 0px -1572px; }
-.ico-after.cross.white:after {
-  background-position: 0px -1652px; }
-.ico-after.pin:after {
-  background-position: 0px -5812px; }
-.ico-after.pin.blue:after {
-  background-position: 0px -5652px; }
-.ico-after.arrow-right:after {
-  background-position: 0px -692px; }
-.ico-after.arrow-right.blue:after {
-  background-position: 0px -532px; }
-.ico-after.star:after {
-  background-position: 0px -6692px; }
-.ico-after.star.yellow:after {
-  background-position: 0px -6612px; }
-.ico-after.star.blue:after {
-  background-position: 0px -6452px; }
-
-.ico-after.online:after, .ico-after.view:after {
-  background-position: 0px -3906px; }
-.ico-after.online.blue:after, .ico-after.view.blue:after {
-  background-position: 0px -3826px; }
-.ico-after.online.light:after, .ico-after.view.light:after {
-  background-position: 0px -3866px; }
-.ico-after.hide:after {
-  background-position: 0px -1986px; }
-.ico-after.hide.blue:after {
-  background-position: 0px -1906px; }
-.ico-after.hide.light:after {
-  background-position: 0px -26px; }
-.ico-after.edit:after {
-  background-position: 0px -1106px; }
-.ico-after.edit.blue:after {
-  background-position: 0px -1026px; }
-.ico-after.edit.light:after {
-  background-position: 0px -1066px; }
-.ico-after.alert:after {
-  background-position: 0px -2986px; }
-.ico-after.alert.blue:after {
-  background-position: 0px -546px; }
-.ico-after.alert.light:after {
-  background-position: 0px -1946px; }
-.ico-after.cite:after {
-  background-position: 0px -666px; }
-.ico-after.cite.blue:after {
-  background-position: 0px -586px; }
-.ico-after.cite.light:after {
-  background-position: 0px -626px; }
-.ico-after.email:after {
-  background-position: 0px -1226px; }
-.ico-after.email.blue:after {
-  background-position: 0px -1146px; }
-.ico-after.email.light:after {
-  background-position: 0px -1186px; }
-.ico-after.tick:after {
-  background-position: 0px -3626px; }
-.ico-after.tick.green:after {
-  background-position: 0px -3546px; }
-.ico-after.tick.light:after {
-  background-position: 0px -3586px; }
-.ico-after.upvote:after {
-  background-position: 0px -3506px; }
-.ico-after.upvote.voted:after {
-  background-position: 0px -3466px; }
-.ico-after.downvote:after {
-  background-position: 0px -3426px; }
-.ico-after.downvote.voted:after {
-  background-position: 0px -3386px; }
-.ico-after.lock:after {
-  background-position: 0px -2386px; }
-.ico-after.lock.blue:after {
-  background-position: 0px -2306px; }
-.ico-after.lock.light:after {
-  background-position: 0px -2346px; }
-.ico-after.more:after {
-  background-position: 0px -2586px; }
-.ico-after.more.blue:after {
-  background-position: 0px -2506px; }
-.ico-after.more.light:after {
-  background-position: 0px -2546px; }
-.ico-after.cross:after {
-  background-position: 0px -866px; }
-.ico-after.cross.blue:after {
-  background-position: 0px -706px; }
-.ico-after.cross.red:after {
-  background-position: 0px -786px; }
-.ico-after.cross.light:after {
-  background-position: 0px -746px; }
-.ico-after.cross.white:after {
-  background-position: 0px -826px; }
-.ico-after.pin:after {
-  background-position: 0px -2906px; }
-.ico-after.pin.blue:after {
-  background-position: 0px -2826px; }
-.ico-after.pin.light:after {
-  background-position: 0px -2866px; }
-.ico-after.beta:after {
-  background-position: 0px -506px; }
-.ico-after.beta.blue:after {
-  background-position: 0px -426px; }
-.ico-after.beta.light:after {
-  background-position: 0px -466px; }
-.ico-after.gear:after {
-  background-position: 0px -1626px; }
-.ico-after.gear.blue:after {
-  background-position: 0px -1546px; }
-.ico-after.gear.light:after {
-  background-position: 0px -1586px; }
-.ico-after.offline:after, .ico-after.arrow-right:after {
-  background-position: 0px -346px; }
-.ico-after.offline.blue:after, .ico-after.arrow-right.blue:after {
-  background-position: 0px -266px; }
-.ico-after.offline.light:after, .ico-after.arrow-right.light:after {
-  background-position: 0px -306px; }
-.ico-after.arrow-left:after {
-  background-position: 0px -226px; }
-.ico-after.arrow-left.blue:after {
-  background-position: 0px -146px; }
-.ico-after.arrow-left.light:after {
-  background-position: 0px -186px; }
-.ico-after.move:after {
-  background-position: 0px -2706px; }
-.ico-after.move.blue:after {
-  background-position: 0px -2626px; }
-.ico-after.move.light:after {
-  background-position: 0px -2666px; }
-.ico-after.star:after {
-  background-position: 0px -3346px; }
-.ico-after.star.yellow:after {
-  background-position: 0px -3306px; }
-.ico-after.star.blue:after {
-  background-position: 0px -3226px; }
-.ico-after.star.light:after {
-  background-position: 0px -3266px; }
-.ico-after.download:after {
-  background-position: 0px -986px; }
-.ico-after.download.blue:after {
-  background-position: 0px -906px; }
-.ico-after.download.light:after {
-  background-position: 0px -946px; }
-.ico-after.import:after {
-  background-position: 0px -2226px; }
-.ico-after.import.blue:after {
-  background-position: 0px -2146px; }
-.ico-after.import.light:after {
-  background-position: 0px -2186px; }
-.ico-after.history:after {
-  background-position: 0px -2106px; }
-.ico-after.history.blue:after {
-  background-position: 0px -2026px; }
-.ico-after.history.light:after {
-  background-position: 0px -2066px; }
-.ico-after.rss:after {
-  background-position: 0px -3146px; }
-.ico-after.rss.blue:after {
-  background-position: 0px -3026px; }
-.ico-after.rss.orange:after {
-  background-position: 0px -3106px; }
-.ico-after.rss.light:after {
-  background-position: 0px -3066px; }
-.ico-after.facebook:after {
-  background-position: 0px -1386px; }
-.ico-after.facebook.blue:after {
-  background-position: 0px -1306px; }
-.ico-after.facebook.light:after {
-  background-position: 0px -1346px; }
-.ico-after.twitter:after {
-  background-position: 0px -3786px; }
-.ico-after.twitter.blue:after {
-  background-position: 0px -3706px; }
-.ico-after.twitter.light:after {
-  background-position: 0px -3746px; }
-.ico-after.github:after {
-  background-position: 0px -1746px; }
-.ico-after.github.blue:after {
-  background-position: 0px -1666px; }
-.ico-after.github.light:after {
-  background-position: 0px -1706px; }
-.ico-after.google-plus:after {
-  background-position: 0px -1866px; }
-.ico-after.google-plus.blue:after {
-  background-position: 0px -1786px; }
-.ico-after.google-plus.light:after {
-  background-position: 0px -1826px; }
-.ico-after.foursquare:after {
-  background-position: 0px -1506px; }
-.ico-after.foursquare.blue:after {
-  background-position: 0px -1426px; }
-.ico-after.foursquare.light:after {
-  background-position: 0px -1466px; }
-
-/* ===== Zeste de Savoir ====================================================
    Override for high pixel ratio screens : HD icons
    ---------------------------------
    Author: Alex-D / Alexandre Demode
@@ -4101,32 +3924,32 @@ div.zform-popup {
   background-image: url('../images/logo@2x.png'); }
 
 .ico, .ico-after:after, .breadcrumb ol li:not(:last-child):after, input[type=radio]:checked, input[type=checkbox]:checked {
-  -webkit-background-size: 40px 3986px !important;
-          background-size: 40px 3986px !important;
+  -webkit-background-size: 40px 3146px !important;
+          background-size: 40px 3146px !important;
   background-image: url("../images/sprite@2x.png") !important; }
 
 .js.enable-mobile-menu .page-container .mobile-menu-btn:after {
-  background-position: 0px -2426px; }
+  background-position: 0px -1706px; }
 
 .logbox .notifs-links .ico-link .notif-text.ico-messages {
-  background-position: 0px -2466px; }
+  background-position: 0px -1746px; }
 .logbox .notifs-links .ico-link .notif-text.ico-notifs {
-  background-position: 0px -2746px; }
+  background-position: 0px -2026px; }
 .logbox .notifs-links .ico-link .notif-text.ico-alerts {
   background-position: 0px -66px; }
 .logbox .notifs-links .ico-link .notif-text.ico-params {
-  background-position: 0px -2786px; }
+  background-position: 0px -2066px; }
 
 .breadcrumb ol li:not(:last-child):after {
   background-position: 0px -106px; }
 
 .search form button:after, .search-box form button:after {
-  background-position: 0px -3186px; }
+  background-position: 0px -2466px; }
 
 .main .content-container h1.ico-articles:after, .main .content-container h2.ico-articles:after {
   background-position: 0px -386px; }
 .main .content-container h1.ico-tutorials:after, .main .content-container h2.ico-tutorials:after {
-  background-position: 0px -3666px; }
+  background-position: 0px -2946px; }
 
 /* ==============
         Forms
@@ -4140,13 +3963,147 @@ div.zform-popup {
         Markdown icons
        ============== */
 .main .content-container .article-content .information.ico-after:after, .main .content-container .message-content .information.ico-after:after {
-  background-position: 0px -2266px; }
+  background-position: 0px -26px; }
 .main .content-container .article-content .question.ico-after:after, .main .content-container .message-content .question.ico-after:after {
-  background-position: 0px -2946px; }
+  background-position: 0px -2226px; }
 .main .content-container .article-content .error.ico-after:after, .main .content-container .message-content .error.ico-after:after {
-  background-position: 0px -1266px; }
+  background-position: 0px -1146px; }
 .main .content-container .article-content .warning.ico-after:after, .main .content-container .message-content .warning.ico-after:after {
-  background-position: 0px -3946px; }
+  background-position: 0px -3106px; }
+
+/* ==============
+        ALL: Icons
+       ============== */
+.ico-after.online:after, .ico-after.view:after {
+  background-position: 0px -3066px; }
+.ico-after.online.blue:after, .ico-after.view.blue:after {
+  background-position: 0px -2986px; }
+.ico-after.online.light:after, .ico-after.view.light:after {
+  background-position: 0px -3026px; }
+.ico-after.edit:after {
+  background-position: 0px -1106px; }
+.ico-after.edit.blue:after {
+  background-position: 0px -1026px; }
+.ico-after.edit.light:after {
+  background-position: 0px -1066px; }
+.ico-after.alert:after {
+  background-position: 0px -2266px; }
+.ico-after.alert.blue:after {
+  background-position: 0px -546px; }
+.ico-after.alert.light:after {
+  background-position: 0px -1546px; }
+.ico-after.cite:after {
+  background-position: 0px -666px; }
+.ico-after.cite.blue:after {
+  background-position: 0px -586px; }
+.ico-after.cite.light:after {
+  background-position: 0px -626px; }
+.ico-after.tick:after {
+  background-position: 0px -2906px; }
+.ico-after.tick.green:after {
+  background-position: 0px -2826px; }
+.ico-after.tick.light:after {
+  background-position: 0px -2866px; }
+.ico-after.upvote:after {
+  background-position: 0px -2786px; }
+.ico-after.upvote.voted:after {
+  background-position: 0px -2746px; }
+.ico-after.downvote:after {
+  background-position: 0px -2706px; }
+.ico-after.downvote.voted:after {
+  background-position: 0px -2666px; }
+.ico-after.lock:after {
+  background-position: 0px -1666px; }
+.ico-after.lock.blue:after {
+  background-position: 0px -1586px; }
+.ico-after.lock.light:after {
+  background-position: 0px -1626px; }
+.ico-after.more:after {
+  background-position: 0px -1866px; }
+.ico-after.more.blue:after {
+  background-position: 0px -1786px; }
+.ico-after.more.light:after {
+  background-position: 0px -1826px; }
+.ico-after.cross:after {
+  background-position: 0px -866px; }
+.ico-after.cross.blue:after {
+  background-position: 0px -706px; }
+.ico-after.cross.red:after {
+  background-position: 0px -786px; }
+.ico-after.cross.light:after {
+  background-position: 0px -746px; }
+.ico-after.cross.white:after {
+  background-position: 0px -826px; }
+.ico-after.pin:after {
+  background-position: 0px -2186px; }
+.ico-after.pin.blue:after {
+  background-position: 0px -2106px; }
+.ico-after.pin.light:after {
+  background-position: 0px -2146px; }
+.ico-after.beta:after {
+  background-position: 0px -506px; }
+.ico-after.beta.blue:after {
+  background-position: 0px -426px; }
+.ico-after.beta.light:after {
+  background-position: 0px -466px; }
+.ico-after.gear:after {
+  background-position: 0px -1266px; }
+.ico-after.gear.blue:after {
+  background-position: 0px -1186px; }
+.ico-after.gear.light:after {
+  background-position: 0px -1226px; }
+.ico-after.offline:after, .ico-after.arrow-right:after {
+  background-position: 0px -346px; }
+.ico-after.offline.blue:after, .ico-after.arrow-right.blue:after {
+  background-position: 0px -266px; }
+.ico-after.offline.light:after, .ico-after.arrow-right.light:after {
+  background-position: 0px -306px; }
+.ico-after.arrow-left:after {
+  background-position: 0px -226px; }
+.ico-after.arrow-left.blue:after {
+  background-position: 0px -146px; }
+.ico-after.arrow-left.light:after {
+  background-position: 0px -186px; }
+.ico-after.move:after {
+  background-position: 0px -1986px; }
+.ico-after.move.blue:after {
+  background-position: 0px -1906px; }
+.ico-after.move.light:after {
+  background-position: 0px -1946px; }
+.ico-after.star:after {
+  background-position: 0px -2626px; }
+.ico-after.star.yellow:after {
+  background-position: 0px -2586px; }
+.ico-after.star.blue:after {
+  background-position: 0px -2506px; }
+.ico-after.star.light:after {
+  background-position: 0px -2546px; }
+.ico-after.download:after {
+  background-position: 0px -986px; }
+.ico-after.download.blue:after {
+  background-position: 0px -906px; }
+.ico-after.download.light:after {
+  background-position: 0px -946px; }
+.ico-after.import:after {
+  background-position: 0px -1506px; }
+.ico-after.import.blue:after {
+  background-position: 0px -1426px; }
+.ico-after.import.light:after {
+  background-position: 0px -1466px; }
+.ico-after.history:after {
+  background-position: 0px -1386px; }
+.ico-after.history.blue:after {
+  background-position: 0px -1306px; }
+.ico-after.history.light:after {
+  background-position: 0px -1346px; }
+.ico-after.rss:after {
+  background-position: 0px -2426px; }
+.ico-after.rss.blue:after {
+  background-position: 0px -2306px; }
+.ico-after.rss.orange:after {
+  background-position: 0px -2386px; }
+.ico-after.rss.light:after {
+  background-position: 0px -2346px; }
 
 /* ===== Zeste de Savoir ====================================================
    Pygments style
