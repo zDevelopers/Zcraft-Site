@@ -65,3 +65,9 @@ pre code {
 .hint--top:after {
     left: 5% !important;
 }
+
+.ico-after.ico-inline {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}

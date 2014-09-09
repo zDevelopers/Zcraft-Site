@@ -9,7 +9,7 @@
 
 ## Insérer une icône
 
-Un simple `span` avec les classes indiquées dans la liste ci-dessous vous permettront d'avoir une icône.  
+L'élément que vous souhaitez imager (un bouton, un lien de la barre latérale, etc.) avec les classes indiquées dans la liste ci-dessous vous permettront d'avoir une icône.  
 Toutes les icônes nécessitent la présence de la classe `ico-after`.  
 Elle sera mise en place de façon différente selon l'endroit où vous l'insérez.
 
