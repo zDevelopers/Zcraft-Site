@@ -77,7 +77,7 @@
                             <h4><span class="mobile-menu-link">{{ part.title }}</span></h4>
                             <ul>
                                 <li ng-repeat="chapter in part.chapters | filter:query">
-                                    <a href="#/{{ part.folder }}/{{ chapter.file }}">
+                                    <a href="#/{{ part.folder }}/{{ chapter.file }}" ng-class="{true: 'ico-after ' + chapter.status, false: ''}[chapter.status !== undefined]">
                                         {{ chapter.title }}
                                     </a>
                                 </li>

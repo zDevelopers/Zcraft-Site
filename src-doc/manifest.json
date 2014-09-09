@@ -5,11 +5,13 @@
         "chapters": [
             {
                 "title": "Installation",
-                "file": "installation"
+                "file": "installation",
+                "status": "tick green"
             },
             {
                 "title": "Outils",
-                "file": "outils"
+                "file": "outils",
+                "status": "beta blue"
             },
             {
                 "title": "Dépendances",
@@ -17,11 +19,13 @@
             },
             {
                 "title": "Esprit / Guidelines",
-                "file": "esprit-guidelines"
+                "file": "esprit-guidelines",
+                "status": "beta blue"
             },
             {
                 "title": "Organisation du code",
-                "file": "organisation-code"
+                "file": "organisation-code",
+                "status": "beta blue"
             }
         ]
     },
@@ -32,7 +36,8 @@
         "chapters": [
             {
                 "title": "Icônes",
-                "file": "icones"
+                "file": "icones",
+                "status": "tick green"
             },
             {
                 "title": "Boutons",
