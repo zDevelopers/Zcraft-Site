@@ -60,7 +60,7 @@ Une version récente de Node.js avec npm est disponible sur le PPA `chris-lea/no
 $ sudo add-apt-repository ppa:chris-lea/node.js
 $ sudo apt-get update
 $ sudo apt-get install python-software-properties python g++ make nodejs
-````
+```
 
 #### Debian
 
