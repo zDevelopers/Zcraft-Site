@@ -1,4 +1,4 @@
-# Icônes
+# Titres et sous-titres
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,9 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- fonctionnement global des titres et sous-titres
+- illustration (.illu)
+- licence
+- date de mise à jour

@@ -1,4 +1,4 @@
-# Icônes
+# Boutons
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,8 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- Différents types de boutons
+- Différentes couleurs
+- Insister sur la valeur sémantique des éléments

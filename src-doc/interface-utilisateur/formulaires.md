@@ -1,4 +1,4 @@
-# Icônes
+# Formulaires
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,7 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO : 
+
+- alerte manque crispy template pack, obligé de coder à la main
+- utiliser les boutons et non les input pour les submit

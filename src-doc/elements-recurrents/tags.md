@@ -1,4 +1,4 @@
-# Icônes
+# Tags
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,6 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- Affichage des tags en haut à droite des pages

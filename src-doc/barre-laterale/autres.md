@@ -1,4 +1,4 @@
-# Icônes
+# Autres
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,4 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO : Tout ce qui ne vaut pas une partie dédiée mais qui vaut son pesant de cacahuettes !

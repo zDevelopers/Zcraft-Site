@@ -1,4 +1,4 @@
-# Icônes
+# Boites modales
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,8 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- Comment lier un bouton à une modale
+- Tailles de modales
+- Data-informations (titre, icône, ...)

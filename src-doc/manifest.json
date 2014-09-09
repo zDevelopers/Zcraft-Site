@@ -59,19 +59,19 @@
         "chapters": [
             {
                 "title": "Titres et sous-titres",
-                "file": ""
+                "file": "titres"
             },
             {
                 "title": "Tags",
-                "file": ""
+                "file": "tags"
             },
             {
                 "title": "Auteurs",
-                "file": ""
+                "file": "auteurs"
             },
             {
                 "title": "Flux de messages",
-                "file": ""
+                "file": "flux-messages"
             }
         ]
     },
@@ -82,23 +82,23 @@
         "chapters": [
             {
                 "title": "Les blocs",
-                "file": ""
+                "file": "blocs"
             },
             {
                 "title": "Sommaires",
-                "file": ""
+                "file": "sommaires"
             },
             {
                 "title": "Menus accordéon",
-                "file": ""
+                "file": "menus-accordeons"
             },
             {
                 "title": "Menu mobile",
-                "file": ""
+                "file": "menu-mobile"
             },
             {
                 "title": "Autres",
-                "file": ""
+                "file": "autres"
             }
         ]
     }

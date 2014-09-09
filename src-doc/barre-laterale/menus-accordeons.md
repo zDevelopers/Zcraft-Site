@@ -1,4 +1,4 @@
-# Icônes
+# Menus accordéons
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,4 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO : Comment rendre un menu/bloc rétractable ?

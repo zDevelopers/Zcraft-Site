@@ -1,4 +1,4 @@
-# Icônes
+# Sommaires
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,7 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO : 
+
+- Comment faire un sommaire ?
+- Plusieurs niveaux (parties, chapitres, extraits)

@@ -1,4 +1,4 @@
-# Icônes
+# Blocs
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,10 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO : 
+
+- fonctionnement des blocs + relation avec version mobile
+- pas d'impact sur la version ordi
+- possibilité de coupler avec accordeon
+
+Note : page à supprimer ?

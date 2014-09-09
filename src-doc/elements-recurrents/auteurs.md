@@ -1,4 +1,4 @@
-# Icônes
+# Auteurs
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,8 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- structure d'une liste d'auteurs
+- lien pour ajouter un auteur
+- textes additionnels (droits sur les galeries, par ex)

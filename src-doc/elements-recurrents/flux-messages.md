@@ -1,4 +1,4 @@
-# Icônes
+# Flux de messages
 
 <div class="warning ico-after">
     <p>
@@ -8,4 +8,7 @@
 </div>
 
 
-TODO : Afficher toutes les icônes dans toutes leurs couleurs, de façon dynamique si possible
+TODO :
+
+- Explication du template message.part.html
+- Détail de l'utilisation du template dans plusieurs configurations
