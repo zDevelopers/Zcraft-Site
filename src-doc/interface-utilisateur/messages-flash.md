@@ -15,17 +15,17 @@ Il y a trois couleurs :
 - vert, pour les succès/confirmations `alert-box success`
 
 <div class="alert-box error">
-    Votre formulaire n'est pas bien rempli !
+    <span class="alert-box-text">Votre formulaire n'est pas bien rempli !</span>
     <button class="close-alert-box ico-after cross white">Masquer l'alerte</button>
 </div>
 
 <div class="alert-box alert">
-    <strong>Attention</strong>, vous modifiez un contenu sensible.
+    <span class="alert-box-text"><strong>Attention</strong>, vous modifiez un contenu sensible.</span>
     <button class="close-alert-box ico-after cross white">Masquer l'alerte</button>
 </div>
 
 <div class="alert-box success">
-    Votre message a été envoyé.
+    <span class="alert-box-text">Votre message a été envoyé.</span>
     <button class="close-alert-box ico-after cross white">Masquer l'alerte</button>
 </div>
 
@@ -34,7 +34,7 @@ Code des exemples :
 ```html
 <!-- Changez simplement la classe "success" pour une autre pour changer le fond -->
 <div class="alert-box success">
-    Votre message ici.
+    <span class="alert-box-text">Votre message ici.</span>
     <button class="close-alert-box ico-after cross white">Masquer l'alerte</button>
 </div>
 ```
@@ -44,7 +44,7 @@ Code des exemples :
 Il est possible de forcer l'affichage du texte à la place ou en plus de la croix en rajoutant la classe `close-alert-box-text` au bouton de fermeture.
 
 <div class="alert-box success">
-    Pas d'icône, juste du texte.
+    <span class="alert-box-text">Pas d'icône, juste du texte.</span>
     <button class="close-alert-box close-alert-box-text">Masquer l'alerte</button>
 </div>
 
@@ -52,7 +52,7 @@ Code de l'exemple :
 
 ```html
 <div class="alert-box success">
-    Pas d'icône, juste du texte.
+    <span class="alert-box-text">Pas d'icône, juste du texte.</span>
     <button class="close-alert-box close-alert-box-text">Masquer l'alerte</button>
 </div>
 ```
@@ -60,7 +60,7 @@ Code de l'exemple :
 Vous pouvez combiner icône et texte comme ceci : 
 
 <div class="alert-box success">
-    Croix + texte.
+    <span class="alert-box-text">Croix + texte.</span>
     <button class="close-alert-box close-alert-box-text ico-after cross white">Masquer l'alerte</button>
 </div>
 
@@ -68,7 +68,7 @@ Code de l'exemple :
 
 ```html
 <div class="alert-box success">
-    Croix + texte.
+    <span class="alert-box-text">Croix + texte.</span>
     <button class="close-alert-box close-alert-box-text ico-after cross white">Masquer l'alerte</button>
 </div>
 ```
