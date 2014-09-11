@@ -118,20 +118,26 @@ Attention : Ne mettre que du texte. Le balisage est géré dans `base.html`.
 
 Nous préférons imposer quelques "normes" dans le style de code pour les fichiers SCSS.
 
-- Organisation en plusieurs fichiers:
-    - `main.scss` — Fichier principal, contenant *uniquement* quelques variables (couleurs, font-family, url du sprite, ...) et les imports des autres fichiers.
-    - `_base.scss` — Règles de base, qui ne concernent que les éléments ...
-    - `_all-support.scss` — Concerne tous les écrans
-    - `_mobile.scss` — Concerne les mobiles (<= 760px de large)
-    - `_mobile-tablet.scss` — Concerne les phablettes (< 960px)
-    - `_tablet.scss` — Concerne les tablettes (>= 760px)
-    - `_wide.scss` — Concerne les écrans d'ordinateurs moyens (>= 960px)
-    - `_extra-wide.scss` — Concerne les écrans d'ordinateurs larges (>= 1140px)
-    - `_mega-wide.scss` — Concerne les écrans d'ordinateurs très larges (>= 1360px)
-    - `_print.scss` — Style pour l'impression
-    - `_high-pixel-ratio.scss` — Concerne les écrans avec une densité de pixel élevée (retina et autre)
-    - `_editor.scss` — Style de l'éditor Markdown
-    - `_form.scss` — Style des formulaires et des modales
-    - `_pygments.scss` — Style pour la coloration syntaxique
-    - `_sprite.scss` — Variables utilisées pour le sprite ; généré dynamiquement par Gulp
-- ...
+### Général et imports
+
+- `main.scss` — Fichier principal, contenant *uniquement* quelques variables (couleurs, font-family, url du sprite, ...) et les imports des autres fichiers
+- `_base.scss` — Règles de base, qui ne concernent que les éléments génériques
+- `_form.scss` — Style des formulaires
+- `_editor.scss` — Style de l'assistant d'édition Markdown
+- `_pygments.scss` — Style pour la coloration syntaxique
+
+### Selon la taille de l'appareil
+
+- `_all-support.scss` — Concerne tous les écrans
+- `_mobile.scss` — Concerne les mobiles (<= 760px de large)
+- `_tablet.scss` — Concerne les tablettes (>= 760px)
+- `_mobile-tablet.scss` — Concerne les mobiles, tablettes et phablettes (< 960px)
+- `_wide.scss` — Concerne les écrans d'ordinateurs moyens (>= 960px)
+- `_extra-wide.scss` — Concerne les écrans d'ordinateurs larges (>= 1140px)
+- `_mega-wide.scss` — Concerne les écrans d'ordinateurs très larges (>= 1360px)
+
+### Autres
+
+- `_print.scss` — Style pour l'impression
+- `_high-pixel-ratio.scss` — Concerne les écrans avec une densité de pixel élevée (@2x, retina et autre)
+- `_sprite.scss` — Variables utilisées pour le sprite ; généré dynamiquement par Gulp, ignoré dans Git
