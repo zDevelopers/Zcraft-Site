@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     $("#accessibility a").on("focus", function(){
@@ -22,22 +22,30 @@
    Author: Alex-D
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
-    
-    $(".main .sidebar.accordeon, .main .sidebar .accordeon").each(function(){
-        var $that = this;
 
-        $("h4 + ul, h4 + ol", $that).each(function(){
+    function accordeon($elem){
+        $("h4 + ul, h4 + ol", $elem).each(function(){
             if($(".current", $(this)).length === 0)
                 $(this).hide();
         });
 
-        $("h4", $that).click(function(e){
+        $("h4", $elem).click(function(e){
             $("+ ul, + ol", $(this)).slideToggle(100);
 
             e.preventDefault();
             e.stopPropagation();
+        });
+    }
+    
+    $(document).ready(function(){
+        $(".main .sidebar.accordeon, .main .sidebar .accordeon")
+        .each(function(){
+            accordeon($(this));
+        })
+        .on("DOMNodeInserted", function(e){
+            accordeon($(e.target));
         });
     });
 })(jQuery);
@@ -48,7 +56,7 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($) {
+(function($, undefined) {
     "use strict";
 
     function AutoComplete(input, options) {
@@ -334,6 +342,11 @@
 
     $(document).ready(function() {
         $("[data-autocomplete]").autocomplete();
+        $("#content").on("DOMNodeInserted", "input", function(e){
+            var $input = $(e.target);
+            if($input.is("[data-autocomplete]"))
+                $input.autocomplete();
+        });
     });
 })(jQuery);
 
@@ -343,10 +356,10 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
-    $(".close-alert-box:not(.open-modal)").on("click", function(e) {
+    $(".main").on("click", ".close-alert-box:not(.open-modal)", function(e) {
         $(this).parents(".alert-box:first").slideUp(150, function(){
             $(this).remove();
         });
@@ -408,19 +421,19 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     var dropdownMouseDown = false;
     
-    $("[data-click]")
-    .on("mousedown", function(){
+    $("body")
+    .on("mousedown", "[data-click]", function(){
         dropdownMouseDown = true;
     })
-    .on("mouseup", function(){
+    .on("mouseup", "[data-click]", function(){
         dropdownMouseDown = false;
     })
-    .on("click focus", function(e){
+    .on("click focus", "[data-click]", function(e){
         if(e.type === "focus" && dropdownMouseDown)
             return false;
 
@@ -438,7 +451,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     var dropdownMouseDown = false;
@@ -1117,7 +1130,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
     var $solvedTopicsElem = $("main [data-solved-topics-url]");
@@ -1133,7 +1146,7 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
     var $btn = $(".toggle-gallery-view"),
@@ -1174,10 +1187,10 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
-    $(".upvote, .downvote").click(function(e){
+    $(".topic-message").on("click", ".upvote, .downvote", function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
@@ -1222,56 +1235,64 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document, $, undefined){
     "use strict";
     
-    var $list = $(".navigable-list");
+    $(document).ready(function(){
+        var $lists = $("#content .navigable-list");
 
-    if($list.length > 0){
-        var $navigableElems = $list.find(".navigable-elem");
-        $("body").on("keydown", function(e){
-            if(!$(document.activeElement).is(":input") && (e.which === 74 || e.which === 75)){
-                var $current = $list.find(".navigable-elem.active"),
-                    nextIndex = null;
+        if($lists.length > 0){
+            var $navigableElems = $lists.find(".navigable-elem");
 
-                if($current.length === 1){
-                    var currentIndex = $navigableElems.index($current);
-                    if(e.which === 75){ // J
-                        if(currentIndex > 0)
-                            nextIndex = currentIndex - 1;
-                    } else { // K
-                        if(currentIndex + 1 < $navigableElems.length)
-                            nextIndex = currentIndex + 1;
+            $("body").on("keydown", function(e){
+                if(!$(document.activeElement).is(":input") && (e.which === 74 || e.which === 75)){
+                    var $current = $lists.find(".navigable-elem.active"),
+                        nextIndex = null;
+
+                    if($current.length === 1){
+                        var currentIndex = $navigableElems.index($current);
+                        if(e.which === 75){ // J
+                            if(currentIndex > 0)
+                                nextIndex = currentIndex - 1;
+                        } else { // K
+                            if(currentIndex + 1 < $navigableElems.length)
+                                nextIndex = currentIndex + 1;
+                        }
+                    } else {
+                        nextIndex = 0;
                     }
-                } else {
-                    nextIndex = 0;
+
+                    if(nextIndex !== null){
+                        $current.removeClass("active");
+                        activeNavigableElem($navigableElems.eq(nextIndex));
+                    }
                 }
+            });
 
-                if(nextIndex !== null){
-                    $current.removeClass("active");
-                    activeNavigableElem($navigableElems.eq(nextIndex));
+            $("#content .navigable-list")
+            .on("focus", ".navigable-link", function(){
+                if(!$(this).parents(".navigable-elem:first").hasClass("active")){
+                    $lists.find(".navigable-elem.active").removeClass("active");
+                    activeNavigableElem($(this).parents(".navigable-elem"));
                 }
-            }
-        });
+            })
+            .on("blur", ".navigable-link", function(){
+                $(this).parents(".navigable-elem:first").removeClass("active");
+            });
+        }
 
-        $list.find(".navigable-link").on("focus", function(){
-            if(!$(this).parents(".navigable-elem:first").hasClass("active")){
-                $list.find(".navigable-elem.active").removeClass("active");
-                activeNavigableElem($(this).parents(".navigable-elem"));
-            }
-        });
-        $list.find(".navigable-link").on("blur", function(){
-            $(this).parents(".navigable-elem:first").removeClass("active");
-        });
-    }
+        function activeNavigableElem($elem){
+            $elem
+                .addClass("active")
+                .find(".navigable-link")
+                    .focus();
+        }
 
-    function activeNavigableElem($elem){
-        $elem
-            .addClass("active")
-            .find(".navigable-link")
-                .focus();
-    }
-})(jQuery);
+        $("#content").on("DOMNodeInserted", ".navigable-list, .navigable-elem", function(){
+            $lists = $("#content .navigable-list");
+        });
+    });
+})(document, jQuery);
 
 /* ===== Zeste de Savoir ====================================================
    Ugly markdown help block management
@@ -1280,29 +1301,39 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document ,$, undefined){
     "use strict";
-    
-    $(".md-editor").each(function(){
-        var $help = $("<div/>", {
-            "class": "markdown-help",
-            "html": "<div class=\"markdown-help-more\">" +
-                    "<p>Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !</p>" +
-                    "<pre><code>**gras** \n*italique* \n[texte de lien](url du lien) \n> citation \n+ liste a puces </code></pre>" +
-                    "<a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">Voir la documentation complète</a></div>" +
-                    "<a href=\"#open-markdown-help\" class=\"open-markdown-help btn btn-grey ico-after view\">"+
-                        "<span class=\"close-markdown-help-text\">Masquer</span>" +
-                        "<span class=\"open-markdown-help-text\">Afficher</span> l'aide Markdown" +
-                    "</a>"
+
+    function addDocMD($elem){
+        $elem.each(function(){
+            var $help = $("<div/>", {
+                "class": "markdown-help",
+                "html": "<div class=\"markdown-help-more\">" +
+                        "<p>Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !</p>" +
+                        "<pre><code>**gras** \n*italique* \n[texte de lien](url du lien) \n> citation \n+ liste a puces </code></pre>" +
+                        "<a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">Voir la documentation complète</a></div>" +
+                        "<a href=\"#open-markdown-help\" class=\"open-markdown-help btn btn-grey ico-after view\">"+
+                            "<span class=\"close-markdown-help-text\">Masquer</span>" +
+                            "<span class=\"open-markdown-help-text\">Afficher</span> l'aide Markdown" +
+                        "</a>"
+            });
+            $(this).after($help);
+            $(".open-markdown-help, .close-markdown-help", $help).click(function(e){
+                $(".markdown-help-more", $help).toggleClass("show-markdown-help");
+                e.preventDefault();
+                e.stopPropagation();
+            });
         });
-        $(this).after($help);
-        $(".open-markdown-help, .close-markdown-help", $help).click(function(e){
-            $(".markdown-help-more", $help).toggleClass("show-markdown-help");
-            e.preventDefault();
-            e.stopPropagation();
+    }
+    
+
+    $(document).ready(function(){
+        addDocMD($(".md-editor"));
+        $("#content").on("DOMNodeInserted", ".md-editor", function(e){
+            addDocMD($(e.target));
         });
     });
-})(jQuery);
+})(document, jQuery);
 
 /* ===== Zeste de Savoir ====================================================
    Toggle message content for staff
@@ -1310,11 +1341,12 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
-    $("[href^=#show-message-hidden]").click(function(){
+    $("#content [href^=#show-message-hidden]").on("click", function(e){
         $(this).parents(".message:first").find(".message-hidden-content").toggle();
+		e.preventDefault();
     });
 })(jQuery);
 
@@ -1324,7 +1356,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(window, document, $, undefined){
     "use strict";
 
     /**
@@ -1634,7 +1666,7 @@
         }
     });
     $(window).trigger("resize");
-})(jQuery);
+})(window, document, jQuery);
 
 /* ===== Zeste de Savoir ====================================================
    Manage modals boxes
@@ -1642,41 +1674,44 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document, $, undefined){
     "use strict";
     
     var $overlay = $("<div/>", {
         "id": "modals-overlay"
     }).on("click", function(e){
-        closeModal($("#modals .modal:visible"));
+        closeModal();
         e.preventDefault();
         e.stopPropagation();
     });
 
-    $("body").append($("<div/>", { "id": "modals" }));
-    $(".modal").each(function(){
-        $("#modals").append($(this).addClass("tab-modalize"));
-        $(this).append($("<a/>", {
-            "class": "btn btn-cancel " + ($(this).is("[data-modal-close]") ? "btn-modal-fullwidth" : ""),
-            "href": "#close-modal",
-            "text": $(this).is("[data-modal-close]") ? $(this).attr("data-modal-close") : "Annuler"
-        }).on("click", function(e){
-            closeModal();
-            e.preventDefault();
-            e.stopPropagation();
-        }));
-        var $link = $("[href=#"+$(this).attr("id")+"]:first");
-        var linkIco = $link.hasClass("ico-after") ? " light " + $link.attr("class").replace(/btn[a-z-]*/g, "") : "";
-        $(this).prepend($("<span/>", {
-            "class": "modal-title" + linkIco,
-            "text": $link.text()
-        }));
-    });
-    $("#modals").append($overlay);
+    var $modals = $("<div/>", { "id": "modals" });
+    $("body").append($modals);
+    $modals.append($overlay);
 
+    function buildModals($elems){
+        $elems.each(function(){
+            $modals.append($(this).addClass("tab-modalize"));
+            $(this).append($("<a/>", {
+                class: "btn btn-cancel " + ($(this).is("[data-modal-close]") ? "btn-modal-fullwidth" : ""),
+                href: "#close-modal",
+                text: $(this).is("[data-modal-close]") ? $(this).attr("data-modal-close") : "Annuler",
+                click: function(e){
+                    closeModal();
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }));
+            var $link = $("[href=#"+$(this).attr("id")+"]:first");
+            var linkIco = $link.hasClass("ico-after") ? " light " + $link.attr("class").replace(/btn[a-z-]*/g, "") : "";
+            $(this).prepend($("<span/>", {
+                class: "modal-title" + linkIco,
+                text: $link.text()
+            }));
+        });
+    }
 
-
-    $(".open-modal").on("click", function(e){
+    $("body").on("click", ".open-modal", function(e){
         $overlay.show();
         $($(this).attr("href")).show(0, function(){
             $(this).find("input:visible, select, textarea").first().focus();
@@ -1689,22 +1724,27 @@
     });
 
     $("body").on("keydown", function(e){
-        if($("#modals .modal:visible").length > 0){
-            // Espace close modal
-            if(e.which === 27){
-                closeModal();
-                e.stopPropagation();
-            }
+        // Escape close modal
+        if($(".modal:visible", $modals).length > 0 && e.which === 27){
+            closeModal();
+            e.stopPropagation();
         }
     });
 
-    function closeModal($modal){
-        $modal = $modal || $("#modals .modal:visible");
-        $modal.fadeOut(150);
+    function closeModal(){
+        $(".modal:visible", $modals).fadeOut(150);
         $overlay.fadeOut(150);
         $("html").removeClass("dropdown-active");
     }
-})(jQuery);
+
+
+    $(document).ready(function(){
+        buildModals($(".modal"));
+        $("#content").on("DOMNodeInserted", ".modal", function(e){
+            buildModals($(e.target));
+        });
+    });
+})(document, jQuery);
 
 /* ===== Zeste de Savoir ====================================================
    Auto submit forms
@@ -1712,10 +1752,10 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
-    $(".select-autosubmit").change(function() {
+    $("body").on("change", ".select-autosubmit", function() {
         $(this).parents("form:first").submit();
     });
 })(jQuery);
@@ -1726,21 +1766,30 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function(document, $, undefined){
     "use strict";
     
-    $(".spoiler").each(function(){
-        $(this).before($("<a/>", {
-            "text": "Afficher/Masquer le contenu masqué",
-            "class": "spoiler-title ico-after view",
-            "href": "#",
-            "click": function(e){
-                $(this).next(".spoiler").toggle();
-                e.preventDefault();
-            }
-        }));
+    function buildSpoilers($elem){
+        $elem.each(function(){
+            $(this).before($("<a/>", {
+                text: "Afficher/Masquer le contenu masqué",
+                class: "spoiler-title ico-after view",
+                href: "#",
+                click: function(e){
+                    $(this).next(".spoiler").toggle();
+                    e.preventDefault();
+                }
+            }));
+        });
+    }
+
+    $(document).ready(function(){
+        buildSpoilers($("#content .spoiler"));
+        $("#content").on("DOMNodeInserted", ".spoiler", function(e){
+            buildSpoilers($(e.target));
+        });
     });
-})(jQuery);
+})(document, jQuery);
 
 /* ===== Zeste de Savoir ====================================================
    Keyboad accessibility for overlayed boxes (modals, etc)
@@ -1748,7 +1797,7 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
     
     $("body").on("keydown", function(e){
@@ -1785,14 +1834,14 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($){
+(function($, undefined){
     "use strict";
 
     if($(".article-content").length > 0){
         $(".content-container .taglist ~ .authors").before($("<button/>", {
-            "class": "btn btn-grey ico-after view open-zen-mode",
-            "text": "Lecture zen",
-            "click": function(e){
+            class: "btn btn-grey ico-after view open-zen-mode",
+            text: "Lecture zen",
+            click: function(e){
                 $(".content-container").toggleClass("zen-mode tab-modalize");
                 $(this).blur();
                 e.preventDefault();
@@ -1801,13 +1850,11 @@
         }));
 
         $("body").on("keydown", function(e){
-            if($(".zen-mode").length > 0){
-                // Escape close modal
-                if(e.which === 27){
-                    $(".content-container").toggleClass("zen-mode tab-modalize");
-                    $(this).blur();
-                    e.stopPropagation();
-                }
+            // Escape close modal
+            if($(".zen-mode").length > 0 && e.which === 27){
+                $(".content-container").toggleClass("zen-mode tab-modalize");
+                $(this).blur();
+                e.stopPropagation();
             }
         });
     }

@@ -53,7 +53,8 @@
             },
             {
                 "title": "Boites modales",
-                "file": "boites-modales"
+                "file": "boites-modales",
+                "status": "tick green"
             }
         ]
     },
