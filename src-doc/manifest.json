@@ -46,11 +46,8 @@
             },
             {
                 "title": "Formulaires",
-                "file": "formulaires"
-            },
-            {
-                "title": "Assistant d'édition Markdown",
-                "file": "assistant-edition-markdown"
+                "file": "formulaires",
+                "status": "beta blue"
             },
             {
                 "title": "Boites modales",
