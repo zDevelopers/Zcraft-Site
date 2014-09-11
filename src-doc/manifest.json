@@ -41,7 +41,8 @@
             },
             {
                 "title": "Boutons",
-                "file": "boutons"
+                "file": "boutons",
+                "status": "tick green"
             },
             {
                 "title": "Formulaires",
