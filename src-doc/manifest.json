@@ -55,6 +55,11 @@
                 "title": "Boites modales",
                 "file": "boites-modales",
                 "status": "tick green"
+            },
+            {
+                "title": "Messages flash",
+                "file": "messages-flash",
+                "status": "tick green"
             }
         ]
     },
