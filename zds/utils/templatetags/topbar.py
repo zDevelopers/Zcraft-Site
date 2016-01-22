@@ -15,6 +15,7 @@ register = template.Library()
 @register.filter('top_categories')
 def top_categories(user):
     cats = {}
+    cats_order = {}
 
     forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").distinct().all()
     if user and user.is_authenticated():
@@ -32,6 +33,9 @@ def top_categories(user):
             cats[key].append(forum)
         else:
             cats[key] = [forum]
+            cats_order[key] = forum.category.position
+
+    cats = OrderedDict(sorted(cats.items(), key=lambda x: cats_order[x[0]]))
 
     tags = Topic.objects\
         .values_list('tags__pk', flat=True)\

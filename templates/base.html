@@ -181,8 +181,13 @@
                     >
                         <ul class="header-menu-list">
                             <li>
+                                <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
+                                    {% trans "Actualités" %}
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
-                                    {% trans "Tutoriels" %}
+                                    {% trans "Zcraft" %}
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
                                     <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
@@ -216,11 +221,6 @@
                                         {% endwith %}
                                     </ul>
                                 </div>
-                            </li>
-                            <li>
-                                <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
-                                    {% trans "Articles" %}
-                                </a>
                             </li>
                             <li>
                                 <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
