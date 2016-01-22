@@ -47,6 +47,12 @@ class FeaturedResourceCreate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        form = self.form_class(initial={
+            'pubdate': datetime.now(),
+        })
+        return render(request, self.template_name, {'form': form})
+
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
@@ -115,6 +121,8 @@ class FeaturedResourceUpdate(UpdateView):
         self.featured_resource.url = form.data.get('url')
         if form.data.get('major_update') is not None:
             self.featured_resource.pubdate = datetime.now()
+        else:
+            self.featured_resource.pubdate = form.data.get('pubdate')
 
         self.featured_resource.save()
         return redirect(reverse('zds.pages.views.home'))
