@@ -4,7 +4,7 @@
 
 {% with status=member|state %}
     {% if status == 'STAFF' %}
-        <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Staff" %}</span>
+        <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Équipe" %}</span>
     {% elif status == 'DOWN'%}
         <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte Inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
     {% elif status == 'BAN'%}
