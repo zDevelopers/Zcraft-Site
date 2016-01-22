@@ -460,6 +460,12 @@
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
                                             </li>
                                         {% endif %}
+
+                                        {% if user.is_staff %}
+                                              <li>
+                                                <a href="{% url 'admin:index' %}">{% trans 'Administration du système' %}</a>
+                                            </li>
+                                        {% endif %}
                                         <li>
                                             <form
                                                 method="post"
