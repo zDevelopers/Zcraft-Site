@@ -95,6 +95,7 @@
             </section>
         {% endif %}
 
+        <!--
              <section class="home-search-box">
                 <form action='{% url "haystack_search" %}' id="search-home">
                     <label for="search-home-input">
@@ -104,6 +105,7 @@
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>
+        -->
         </div>
     </section>
 
@@ -126,6 +128,7 @@
             </div>
         </section>
         <div class="home-row">
+            <!--
            <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
@@ -149,6 +152,7 @@
                     </div>
                 </div>
             </section>
+            -->
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
@@ -166,23 +170,23 @@
                     {% endfor %}
                 </div>
             </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="home-heading ico-after ico-forum" itemprop="name">
+                    {% trans "Derniers sujets" %}
+                    <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                  {% for topic in last_topics %}
+                      {% include 'forum/includes/topic_item.part.html' %}
+                  {% empty %}
+                      <p>{% trans "Aucun sujet disponible." %}</p>
+                  {% endfor %}
+                </div>
+            </section>
         </div>
-
-        <section itemscope itemtype="http://schema.org/ItemList">
-            <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                {% trans "Derniers sujets" %}
-                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
-            </h2>
-
-            <meta itemprop="itemListOrder" content="Descending">
-
-            <div class="content-item-list">
-              {% for topic in last_topics %}
-                  {% include 'forum/includes/topic_item.part.html' %}
-              {% empty %}
-                  <p>{% trans "Aucun sujet disponible." %}</p>
-              {% endfor %}
-            </div>
-        </section>
     </div>
 {% endblock %}
