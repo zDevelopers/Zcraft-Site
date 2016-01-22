@@ -5,8 +5,7 @@ from django.conf.urls import patterns, url
 from . import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostUseful, PostUnread, PostLike, PostDisLike, FindPost
-
+    PostUseful, PostUnread, PostLike, PostDisLike, FindPost, ForumTopicsListUnreadView
 
 urlpatterns = patterns('',
 
@@ -23,6 +22,9 @@ urlpatterns = patterns('',
                        # Followed topics
                        url(r'^notifications/$',
                            'zds.forum.views.followed_topics'),
+
+                       # Unread topics
+                       url(r'^non_lus/$', ForumTopicsListUnreadView.as_view(), name='topics-unread'),
 
                        # Moderation
                        url(r'^resolution_alerte/$',

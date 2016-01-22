@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.list import MultipleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
@@ -110,6 +111,42 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         elif filter_param == 'noanswer':
             queryset = queryset.filter(last_message__position=1)
         return queryset
+
+
+class ForumTopicsListUnreadView(ZdSPagingListView, MultipleObjectMixin):
+
+    context_object_name = 'topics'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    template_name = 'forum/unread.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user is None or not request.user.is_authenticated:
+            raise PermissionDenied
+        return super(ForumTopicsListUnreadView, self).get(request, args, kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ForumTopicsListUnreadView, self).get_context_data(**kwargs)
+        context['topics'] = list(context['topics'].all())
+        context.update({
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
+        })
+        return context
+
+    def get_queryset(self):
+        topics_read = TopicRead.objects.list_read_topic_pk(self.request.user)
+
+        forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").distinct().all()
+        if self.request.user and self.request.user.is_authenticated():
+            forums_prv = Forum\
+                .objects\
+                .filter(group__isnull=False, group__in=self.request.user.groups.all())\
+                .select_related("category").distinct().all()
+            forums = list(forums_pub | forums_prv)
+        else:
+            forums = list(forums_pub)
+
+        self.queryset = Topic.objects.select_related().exclude(id__in=topics_read).filter(forum__in=forums).all()
+        return super(ForumTopicsListUnreadView, self).get_queryset()
 
 
 class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):

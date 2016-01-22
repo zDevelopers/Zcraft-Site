@@ -1,0 +1,43 @@
+{% extends "forum/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Sujets non-lus" %}
+{% endblock %}
+
+
+
+{% block description %}
+    {% trans "Les forums vous permettent de venir poser vos questions aux autres membres mais aussi de vous entraîner ou tout simplement de discuter" %}.
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Sujets non-lus" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+   {% trans "Sujets non-lus" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+        <meta itemprop="itemListOrder" content="Ordered">
+
+        {% for topic in topics %}
+            {% include "forum/includes/topic_row.part.html" with topic=topic %}
+        {% empty %}
+            <p>{% trans "Aucun sujet non lu." %}</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" %}
+{% endblock %}
