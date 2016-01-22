@@ -40,10 +40,12 @@
         <meta itemprop="itemListOrder" content="Unordered">
 
         {% for category in categories %}
+            {%  if category.forums|length != 0 %}
             <h2 class="group-title content-wrapper">
                 {{ category.title }}
             </h2>
             {% include "forum/includes/forums.part.html" with forums=category.forums %}
+            {% endif %}
         {% empty %}
             <p>{% trans "Aucun forum disponible." %}</p>
         {% endfor %}
