@@ -60,11 +60,11 @@
     }
     a {
         text-decoration: none;
-        color: lighten($color-primary, 15%);
+        color: lighten($color-primary, 5%);
 
         &:hover,
         &:focus {
-            color: lighten($color-primary, 15%);
+            color: lighten($color-primary, 5%);
             text-decoration: underline;
             outline: none;
         }

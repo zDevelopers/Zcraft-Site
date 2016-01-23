@@ -24,7 +24,7 @@ hr {
 
 a,
 .link {
-    color: lighten($color-primary, 20%);
+    color: lighten($color-primary, 5%);
     transition: all $transition-duration ease;
 
     &:hover {

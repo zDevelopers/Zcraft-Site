@@ -74,19 +74,19 @@
         text-align: center;
         height: 30px;
         line-height: 30px;
-        border-top: 1px solid #274a5a;
+        border-top: 1px solid $color-header-dropdowns-limits;
         background-color: $color-header-hover;
         transition-property: color, background-color;
 
         &:first-child {
             border-top: 0 !important;
-            border-bottom: 1px solid #274a5a;
+            border-bottom: 1px solid $color-header-dropdowns-limits;
         }
 
         &:hover,
         &:focus {
-            color: #95d7f5;
-            background-color: #274a5a;
+            color: #ffffff;
+            background-color: $color-primary;
             border-top: 1px solid $color-header-hover;
         }
     }
@@ -116,11 +116,11 @@
                     height: 10px;
                 }
                 &::-webkit-scrollbar-track {
-                    background-color: #06354a;
+                    background-color: $color-header-dropdowns-limits;
                 }
                 &::-webkit-scrollbar-thumb {
-                    background-color: #396a81;
-                    border: 1px solid #06354a;
+                    background-color: $color-header-hover;
+                    border: 1px solid $color-header-dropdowns-limits;
                     transition: all $transition-duration ease;
 
                     &:hover {

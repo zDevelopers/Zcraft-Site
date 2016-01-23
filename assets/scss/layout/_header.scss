@@ -80,8 +80,8 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
-    background: url('../images/logo.png') no-repeat center center;
-    background-size: 100% auto;
+    background: url('https://www.zcraft.fr/wp-content/uploads/2012/07/Logo-toon-3-276x300.png') no-repeat center center;
+    background-size: 55% auto;
 
     &:hover,
     &:focus {
@@ -114,7 +114,7 @@
                 padding: 0 5px;
                 height: 16px;
                 line-height: 14px;
-                background: #c0392b; //@TODO: Color
+                background: $color-header-notifications-count;
                 border-radius: 16px;
             }
             .notif-text {
@@ -158,7 +158,7 @@
             height: 35px;
             line-height: 37px;
             text-align: center;
-            border-bottom: 1px solid #274a5a; // @TODO: Color
+            border-bottom: 1px solid $color-header-dropdowns-limits; // @TODO: Color
             background-color: $color-header-hover;
         }
 
@@ -167,7 +167,7 @@
             margin: 0;
             padding: 0;
             list-style: none;
-            background-color: #19526c; // @TODO: Color
+            background-color: $color-header-dropdowns-background; // @TODO: Color
 
             li {
                 display: block;
