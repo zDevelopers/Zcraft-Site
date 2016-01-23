@@ -106,6 +106,12 @@ class Profile(models.Model):
         user_group_names = [g.name for g in user_groups]
         return settings.ZDS_APP['member']['bot_group'] in user_group_names
 
+    def is_god(self):
+        """Checks if the user must be displayed as a god"""
+        user_groups = self.user.groups.all()
+        user_group_names = [g.name for g in user_groups]
+        return settings.ZDS_APP['member']['god_group'] in user_group_names
+
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
         return reverse('member-detail', kwargs={'user_name': self.user.username})

@@ -11,5 +11,7 @@
         <span class="badge banned {% if push_badge %}push-badge{% endif %}">{% trans "Banni" %}</span>
     {% elif status == 'LS'%}
         <span class="badge readonly {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Lecture Seule"{% endblocktrans %}>{% trans "LS" %}</span>
+    {% elif status == 'GOD'%}
+        <span class="badge god {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Divinité toute puissante"{% endblocktrans %}>{% trans "DIEU" %}</span>
     {% endif %}
 {% endwith %}

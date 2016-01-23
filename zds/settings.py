@@ -388,14 +388,14 @@ THUMBNAIL_PRESERVE_EXTENSIONS = None
 
 ZDS_APP = {
     'site': {
-        'name': u"ZesteDeSavoir",
-        'litteral_name': u"Zeste de Savoir",
-        'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
-        'abbr': u"zds",
+        'name': u"Zcraft",
+        'litteral_name': u"Zcraft",
+        'slogan': u"Zcraft, serveur Minecraft communautaire, et bien plus encore...",
+        'abbr': u"zcraft",
         'url': u"http://127.0.0.1:8000",
-        'dns': u"zestedesavoir.com",
-        'email_contact': u"zestedesavoir@gmail.com",
-        'email_noreply': u"noreply@zestedesavoir.com",
+        'dns': u"zcraft.fr",
+        'email_contact': u"contact@zcraft.fr",
+        'email_noreply': u"noreply@zcraft.fr",
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
@@ -454,6 +454,7 @@ ZDS_APP = {
         'anonymous_account': u"anonymous",
         'external_account': u"external",
         'bot_group': u'bot',
+        'god_group': u'god',
         'members_per_page': 100,
     },
     'gallery': {

@@ -35,7 +35,9 @@ def user(user_pk):
 def state(current_user):
     try:
         user_profile = current_user.profile
-        if not user_profile.user.is_active:
+        if user_profile.is_god():
+            user_state = 'GOD'
+        elif not user_profile.user.is_active:
             user_state = 'DOWN'
         elif not user_profile.can_read_now():
             user_state = 'BAN'
