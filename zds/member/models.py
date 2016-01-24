@@ -48,6 +48,8 @@ class Profile(models.Model):
         null=True)
 
     site = models.CharField('Site internet', max_length=2000, blank=True)
+    title = models.CharField('Titre', max_length=250, blank=True)
+
     show_email = models.BooleanField('Afficher adresse mail publiquement',
                                      default=False)
 
@@ -157,6 +159,40 @@ class Profile(models.Model):
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
                 md5(self.user.email.lower().encode("utf-8")).hexdigest())
+
+    def get_title(self):
+        if self.title:
+            return self.title
+        else:
+            posts_count = self.get_post_count_as_staff()
+            if posts_count > 2000:
+                return "Real Poney"
+            elif posts_count > 1000:
+                return "Little Poney"
+            elif posts_count > 750:
+                return "Représentant(e) en flood"
+            elif posts_count > 600:
+                return "Ender Dragon"
+            elif posts_count > 500:
+                return "N00B"
+            elif posts_count > 400:
+                return "Maraudeur rose"
+            elif posts_count > 300:
+                return "Vampire qui fait peur !"
+            elif posts_count > 200:
+                return "Toutou Noob"
+            elif posts_count > 150:
+                return "AK Carambar"
+            elif posts_count > 100:
+                return "Mouton laineux"
+            elif posts_count > 60:
+                return "Girafe"
+            elif posts_count > 30:
+                return "Koala"
+            elif posts_count > 10:
+                return "Petit chaton mignon"
+            else:
+                return "Petit nouveau"
 
     def get_post_count(self):
         """

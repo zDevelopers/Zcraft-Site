@@ -4,7 +4,7 @@
     &.repeated {
         .message {
             &,
-            .is-author {
+            .author-title {
                 background: #EEE;
             }
 
@@ -16,7 +16,7 @@
     &.helpful {
         .message {
             &,
-            .is-author {
+            .author-title {
                 background: $color-helpful;
             }
 
@@ -27,7 +27,7 @@
         &.repeated {
             .message {
                 &,
-                .is-author {
+                .author-title {
                     background: desaturate($color-helpful, 50%);
                 }
 
@@ -109,7 +109,7 @@
         border-bottom-width: 3px;
         min-height: 75px;
 
-        .is-author {
+        .author-title {
             position: absolute;
             top: -16px;
             left: 10px;
@@ -609,7 +609,7 @@ form.topic-message {
                 border-right-color: #FDFDFD;
             }
 
-            .is-author {
+            .author-title {
                 left: 5px;
             }
 

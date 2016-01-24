@@ -35,9 +35,7 @@
 
 
     <div class="message">
-        {% if is_author %}
-            <span class="is-author">{% trans "Auteur du sujet" %}</span>
-        {% endif %}
+        <span class="author-title">{{ message.author.profile.get_title }}</span>
 
         {% if user.is_authenticated %}
             <ul class="message-actions">
