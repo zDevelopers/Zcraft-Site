@@ -102,7 +102,7 @@ class Forum(models.Model):
         null=True,
         blank=True)
     # TODO: A forum defines an image, but it doesn't seems to be used...
-    image = models.ImageField(upload_to=image_path_forum)
+    image = models.ImageField(upload_to=image_path_forum, null=True)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
