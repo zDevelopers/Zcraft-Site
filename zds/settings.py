@@ -450,7 +450,7 @@ ZDS_APP = {
         'cnil': u"1771020",
     },
     'member': {
-        'bot_account': u"admin",
+        'bot_account': u"Veh-Syhss",
         'anonymous_account': u"anonymous",
         'external_account': u"external",
         'bot_group': u'bot',

@@ -264,6 +264,14 @@ class MiniProfileForm(forms.Form):
         )
     )
 
+    title = forms.CharField(
+        label=_(u'Titre'),
+        help_text=_(u'Ce titre, purement cosmétique, sera affiché au dessus des messages postés par cette personne. '
+                    u'Laissez vide pour utiliser une valeur par défaut fonction du nombre de messages.'),
+        max_length=Profile._meta.get_field('title').max_length,
+        required=False
+    )
+
     def __init__(self, *args, **kwargs):
         super(MiniProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -272,6 +280,7 @@ class MiniProfileForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('biography'),
+            Field('title'),
             Field('site'),
             Field('avatar_url'),
             Field('sign'),

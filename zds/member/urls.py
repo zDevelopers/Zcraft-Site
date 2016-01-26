@@ -33,7 +33,7 @@ urlpatterns = patterns('',
                        url(r'^articles/$', 'zds.member.views.articles'),
 
                        #user rights
-                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', 'zds.member.views.settings_promote'),
+                       url(r'^profil/promouvoir/(?P<user_name>.+)/$', 'zds.member.views.settings_promote'),
 
                        #membership
                        url(r'^connexion/$', 'zds.member.views.login_view'),

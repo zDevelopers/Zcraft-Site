@@ -30,6 +30,7 @@
         <h1 id="infos-generales">
             {% trans "Profil de" %} {{ usr.username }}
         </h1>
+        <h2 class="subtitle">{{ profile.get_title }}</h2>
 
         <div class="member-card">
             <div class="member-avatar">
@@ -217,7 +218,7 @@
                     </a>
                 {% endif %}
                 {% if perms.member.super_user %}
-                    <a href="{% url "zds.member.views.settings_promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
+                    <a href="{% url "zds.member.views.settings_promote" profile.user.username %}" class="new-btn ico-after edit gear blue">
                         {% trans "Promouvoir" %}
                     </a>
                 {% endif %}

@@ -599,6 +599,9 @@ def settings_mini_profile(request, user_name):
             profile.avatar_url = form.data["avatar_url"]
             profile.sign = form.data["sign"]
 
+            if request.user.is_staff:
+                profile.title = form.data["title"]
+
             # Save the profile and redirect the user to the configuration space
             # with message indicate the state of the operation
 
@@ -618,7 +621,12 @@ def settings_mini_profile(request, user_name):
             "site": profile.site,
             "avatar_url": profile.avatar_url,
             "sign": profile.sign,
+            "title": profile.title
         })
+
+        if not request.user.is_staff:
+            form.title.widget.attrs['readonly'] = True
+
         data = {"form": form, "profile": profile}
         return render(request, "member/settings/profile.html", data)
 
@@ -949,13 +957,13 @@ def remove_oldtuto(request):
 
 
 @login_required
-def settings_promote(request, user_pk):
+def settings_promote(request, user_name):
     """ Manage the admin right of user. Only super user can access """
 
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    profile = get_object_or_404(Profile, user__pk=user_pk)
+    profile = get_object_or_404(Profile, user__username=user_name)
     user = profile.user
 
     if request.method == "POST":
@@ -1046,7 +1054,8 @@ def settings_promote(request, user_pk):
     form = PromoteMemberForm(initial={
         'superuser': user.is_superuser,
         'groups': user.groups.all(),
-        'activation': user.is_active
+        'activation': user.is_active,
+        'title': user.profile.title
     })
     return render(request, 'member/settings/promote.html', {
         "usr": user,
