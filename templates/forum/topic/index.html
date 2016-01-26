@@ -67,7 +67,7 @@
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
             data-ajax-output="solve-topic"
         >
-            {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
+            {% trans "Ce sujet est considéré comme finalisé" %}.
         </div>
 
 
@@ -155,16 +155,16 @@
                     type="submit" data-ajax-input="solve-topic"
                     data-content-on-click="
                         {% if topic.is_solved %}
-                            {% trans "Marquer comme résolu" %}
+                            {% trans "Marquer comme finalisé" %}
                         {% else %}
-                            {% trans "Marquer comme non résolu" %}
+                            {% trans "Marquer comme non finalisé" %}
                         {% endif %}
                     "
                 >
                     {% if topic.is_solved %}
-                        {% trans "Marquer comme non résolu" %}
+                        {% trans "Marquer comme non finalisé" %}
                     {% else %}
-                        {% trans "Marquer comme résolu" %}
+                        {% trans "Marquer comme finalisé" %}
                     {% endif %}
                 </button>
             </form>

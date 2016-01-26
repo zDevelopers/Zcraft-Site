@@ -45,14 +45,14 @@
                 <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
-                    {% trans "Sujets résolus" %}
+                    {% trans "Sujets finalisés" %}
                 </a>
             </li>
             <li>
                 <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
-                    {% trans "Sujets non résolus" %}
+                    {% trans "Sujets non finalisés" %}
                 </a>
             </li>
             <li>

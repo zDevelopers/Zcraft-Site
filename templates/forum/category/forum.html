@@ -5,11 +5,11 @@
 {% block title %}
     {{ forum.title }}
     {% if request.GET.filter == "solve" %}
-        / {% trans "Sujets résolus" %}
+        » {% trans "Sujets finalisés" %}
     {% elif request.GET.filter == "unsolve" %}
-        / {% trans "Sujets non-résolus" %}
+        » {% trans "Sujets non-finalisés" %}
     {% elif request.GET.filter == "noanswer" %}
-        / {% trans "Sujets sans réponse" %}
+        » {% trans "Sujets sans réponse" %}
     {% endif %}
 {% endblock %}
 
@@ -35,9 +35,9 @@
     {% endif %}
 
     {% if request.GET.filter == "solve" %}
-        <li>{% trans "Sujets résolus" %}</li>
+        <li>{% trans "Sujets finalisés" %}</li>
     {% elif request.GET.filter == "unsolve" %}
-        <li>{% trans "Sujets non-résolus" %}</li>
+        <li>{% trans "Sujets non-finalisés" %}</li>
     {% elif request.GET.filter == "noanswer" %}
         <li>{% trans "Sujets sans réponse" %}</li>
     {% endif %}
@@ -48,9 +48,9 @@
 {% block headline %}
     {{ forum.title }}
     {% if request.GET.filter == "solve" %}
-        / {% trans "Sujets résolus" %}
+        / {% trans "Sujets finalisés" %}
     {% elif request.GET.filter == "unsolve" %}
-        / {% trans "Sujets non-résolus" %}
+        / {% trans "Sujets non-finalisés" %}
     {% elif request.GET.filter == "noanswer" %}
         / {% trans "Sujets sans réponse" %}
     {% endif %}
@@ -110,14 +110,14 @@
                 <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
-                    {% trans "Sujets résolus" %}
+                    {% trans "Sujets finalisés" %}
                 </a>
             </li>
             <li>
                 <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
-                    {% trans "Sujets non résolus" %}
+                    {% trans "Sujets non finalisés" %}
                 </a>
             </li>
             <li>
