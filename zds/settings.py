@@ -146,6 +146,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # ZDS context processors
     'zds.utils.context_processor.app_settings',
     'zds.utils.context_processor.git_version',
+    # Zcraft context processors
+    'zcraft.topbar.context_processors.load_topbar_links'
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
@@ -184,6 +186,10 @@ INSTALLED_APPS = (
     'zds.member',
     'zds.featured',
     'zds.search',
+
+    # Zcraft-specific code
+    'zcraft.topbar',
+
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

@@ -84,6 +84,8 @@ urlpatterns = patterns('',
                        url('', include('django.contrib.auth.urls', namespace='auth')),
                        ('^munin/', include('munin.urls')),
 
+                       url(r'^nav/', include('zcraft.topbar.urls', namespace='topbar')),
+
                        url(r'^$', 'zds.pages.views.home'),
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

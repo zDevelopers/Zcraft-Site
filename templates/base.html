@@ -186,8 +186,39 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                <a href="{% url "topbar:list" %}" class="mobile-menu-link {% block menu_links %}{% endblock %}">
                                     {% trans "Zcraft" %}
+                                </a>
+
+                                <div class="dropdown header-menu-dropdown">
+                                    <ul class="dropdown-list">
+                                        {% for title, links in top_bar_categories.items %}
+                                            <li>
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {{ title }}
+                                                    </li>
+                                                    {% for link in links %}
+                                                        <li>
+                                                            <a href="{{ link.url }}">{{ link.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                        {% empty %}
+                                            <ul>
+                                                <li class="dropdown-title">
+                                                    {% trans "Aucun tutoriel disponible." %}
+                                                </li>
+                                            </ul>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% comment %}
+                            <li>
+                                <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                    {% trans "Tutoriels" %}
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
                                     <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
@@ -222,6 +253,7 @@
                                     </ul>
                                 </div>
                             </li>
+                            {% endcomment %}
                             <li>
                                 <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
                                     {% trans "Forums" %}

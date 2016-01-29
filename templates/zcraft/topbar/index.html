@@ -1,0 +1,38 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Liens de navigation" %}
+{% endblock %}
+
+
+{# We reuse the "pages" style but the “Pages” breadcrumbs item is removed, as this is not really a page. #}
+{%  block breadcrumb_base %}{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Liens de navigation" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Liens de navigation" %}</h1>
+{% endblock %}
+
+
+
+{% block content %}
+
+    {% for category, links in categories.items %}
+        <h2>{{ category }}</h2>
+
+        <ul>
+        {%  for link in links %}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+
+{% endblock %}
