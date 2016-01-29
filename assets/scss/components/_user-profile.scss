@@ -42,3 +42,19 @@
     margin: 15px 0 0;
     padding: 0;
 }
+
+.karma {
+    font-weight: bold;
+
+    &.positive {
+        color: darkgreen;
+    }
+
+    &.negative {
+        color: red;
+    }
+
+    &.neutral {
+        color: black;
+    }
+}

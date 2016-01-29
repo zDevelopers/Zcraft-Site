@@ -86,23 +86,6 @@
             {% endif %}
         </ul>
 
-        {% if perms.member.change_profile and not profile.is_private %}
-            <div>
-                {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
-                <ul>
-                {% if karmanotes.count > 0 %}
-                    {% for note in karmanotes %}
-                        <li><strong>{{ note.value }}</strong> {{ note.create_at|format_date:True }} {% trans "par" %} {{ note.staff.username }} : {{ note.comment }}</li>
-                    {% endfor %}
-                {% else %}
-                    <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
-                {% endif %}
-                </ul>
-                <a href="#karmatiser-modal" class="open-modal">{% trans "Ajouter une remarque" %}</a>
-                {% crispy karmaform %}
-            </div>
-        {% endif %}
-
         {% if profile.sign %}
             <h2 id="signature">{% trans "Signature" %}</h2>
             {{ profile.sign|emarkdown_inline }}
@@ -122,6 +105,7 @@
 
 
     <section class="content-col-2 tutorial-list">
+        {% comment %}
         {% if tutorials %}
             <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">{% trans "Derniers tutoriels" %}</h2>
             <div class="content-item-list">
@@ -133,6 +117,7 @@
                 <div class="fill"></div>
             </div>
         {% endif %}
+        {%  endcomment %}
 
 
         {% if articles %}
@@ -142,6 +127,34 @@
                     {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
                 {% endfor %}
             </div>
+        {% endif %}
+
+        {% if perms.member.change_profile and not profile.is_private %}
+            <h2 class="ico-after ico-tutorials" id="karma">
+                {% trans "Remarques sur cet utilisateur" %}
+                (<span class="karma {% if profile.karma > 0 %}positive{% elif profile.karma < 0 %}negative{% else%}neutral{% endif %}">{% if profile.karma > 0 %}+{% endif %}{{ profile.karma }}</span>)
+            </h2>
+            {# TODO Comprendre pourquoi le CSS ne passe pas, et passer tous les attributs “style” en CSS #}
+            <p style="float: right">
+                <a href="#karmatiser-modal" class="open-modal btn btn-gray" style="background: #EEE; color: #555;">{% trans "Ajouter une remarque" %}</a>
+            </p>
+
+            <ul>
+            {% if karmanotes.count > 0 %}
+                {% for note in karmanotes %}
+                    <li>
+                        <span class="karma {% if note.value > 0 %}positive{% elif note.value < 0 %}negative{% else%}neutral{% endif %}">
+                            {% if note.value > 0 %}+{% endif %}{{ note.value }}
+                        </span><br />
+                        {{ note.comment }}<br />
+                        <em><small>{{ note.create_at|format_date:True|capfirst }} {% trans "par" %} {{ note.staff.username }}</small></em>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li>{% trans "Cet utilisateur n'a reçu aucune remarque" %}</li>
+            {% endif %}
+            </ul>
+            {% crispy karmaform %}
         {% endif %}
     </section>
 
