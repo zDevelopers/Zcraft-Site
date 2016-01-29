@@ -692,6 +692,7 @@ def solve_alert(request):
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = render_to_string("forum/messages/solve_alert_pm.md", {
             'alert_author': alert.author.username,
+            'alert_message': alert.text,
             'post_author': post.author.username,
             'post_title': post.topic.title,
             'post_url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
@@ -702,7 +703,7 @@ def solve_alert(request):
             bot,
             [alert.author],
             u"Résolution d'alerte : {0}".format(post.topic.title),
-            "",
+            u"Traitée par {0}".format(request.user.username),
             msg,
             False,
         )

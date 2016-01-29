@@ -318,7 +318,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
                 'validator': validation.validator,
-                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+                'message_reject': form.cleaned_data['text']
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
@@ -485,7 +485,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
                 'admin': self.request.user,
-                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+                'message_reject': form.cleaned_data['text']
             })
 
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])

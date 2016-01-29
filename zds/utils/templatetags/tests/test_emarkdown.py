@@ -54,3 +54,10 @@ class EMarkdownTest(TestCase):
                          "##### Titre **2**\n\n"
                          "###### Titre 3\n\n"
                          "&gt; test", tr)
+
+    def test_prefix(self):
+        tr = Template("{% load emarkdown %}{{content | quote_text }}").render(self.context)
+        self.assertEqual(u"> # Titre 1\n\n"
+                         "> ## Titre **2**\n\n"
+                         "> ### Titre 3\n\n"
+                         "> > test", tr)

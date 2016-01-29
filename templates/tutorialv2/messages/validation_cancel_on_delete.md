@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load captureas %}
+{% load emarkdown %}
 
 {% blocktrans with title=content.title|safe user_url=user.get_absolute_url user_name=user.username|safe message=message|safe %}
 
@@ -10,6 +11,6 @@ Je t'informe que la validation du contenu « {{ title }} » que tu as réservé,
 que le contenu en question a été supprimé par 
 [{{ user_name }}]({{ user_url }}), qui a fourni l'explication suivante :
 
-{{ message }}
+{{ message | quote_text }}
 
 {%  endblocktrans %}

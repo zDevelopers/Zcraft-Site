@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load emarkdown %}
 
 {% blocktrans with title=content.title|safe validator_name=validator.username|safe validator_url=validator.get_absolute_url message=message_reject|safe %}
 
@@ -11,7 +12,7 @@ les raisons de ce rejet, fournies ci-dessous par
 [{{ validator_name }}]({{ validator_url }}), le validateur en charge de 
 votre contenu :
 
-{{ message }}
+{{ message | quote_text }}
 
 Si certains points vous semblent obscurs, voire injustes, vous êtes invité à 
 contacter le validateur pour lui en parler. Il sera ravi de vous fournir des 

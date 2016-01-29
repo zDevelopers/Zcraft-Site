@@ -127,3 +127,19 @@ def decale_header_2(text):
 @register.filter('decale_header_3')
 def decale_header_3(text):
     return decale_header(text, 3)
+
+
+def prefix_each_line(text, prefix):
+    """
+    Prefixes each line of the given text.
+
+    :param text: The text to prefix.
+    :param prefix: The lines prefix.
+    :return: The prefixed text.
+    """
+    return '\n'.join([prefix + line for line in text.split('\n')])
+
+
+@register.filter('quote_text', needs_autoescape=False)
+def quote_text(text):
+    return prefix_each_line(text, '> ')
