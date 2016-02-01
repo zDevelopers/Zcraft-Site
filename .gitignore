@@ -24,6 +24,8 @@ base.db
 
 /scripts/release_summary.md
 
+/zdsenv/
+
 # Front files
 /node_modules
 /dist
