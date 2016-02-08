@@ -1,3 +1,5 @@
+require('es6-promise').polyfill();
+
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
     sprite = require("sprity"),
