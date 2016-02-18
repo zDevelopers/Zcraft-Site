@@ -3,15 +3,19 @@
 
 
 {% with status=member|state %}
-    {% if status == 'STAFF' %}
-        <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Équipe" %}</span>
+    {% if status == 'ADMIN' %}
+        <span class="badge admin {% if push_badge %}push-badge{% endif %}" title="{% trans "Administrateur" %}">{% trans "Admin" %}</span>
+    {% elif status == 'STAFF' %}
+        <span class="badge staff {% if push_badge %}push-badge{% endif %}" title="{% trans "Gardien" %}">{% trans "Équipe" %}</span>
     {% elif status == 'DOWN'%}
-        <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte Inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
+        <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte Inactif"{% endblocktrans %}>{% trans "Inactif" %}</span>
     {% elif status == 'BAN'%}
         <span class="badge banned {% if push_badge %}push-badge{% endif %}">{% trans "Banni" %}</span>
     {% elif status == 'LS'%}
         <span class="badge readonly {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Lecture Seule"{% endblocktrans %}>{% trans "LS" %}</span>
     {% elif status == 'GOD'%}
-        <span class="badge god {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Divinité toute puissante"{% endblocktrans %}>{% trans "DIEU" %}</span>
+        <span class="badge god {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Divinité toute puissante"{% endblocktrans %}>{% trans "Dieu" %}</span>
+    {% elif status == 'ANIMATOR'%}
+        <span class="badge animator {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Organisateur d'événements"{% endblocktrans %}>{% trans "Anim." %}</span>
     {% endif %}
 {% endwith %}

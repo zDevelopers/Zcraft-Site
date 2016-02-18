@@ -59,7 +59,12 @@
                 {% endif %}
                 {% if perms.member.show_ip %}
                     <li>
-                        {% trans "Dernière IP" %} : <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
+                        {% trans "Dernière IP" %} :
+                        {% if profile.last_ip_address %}
+                            <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
+                        {% else %}
+                            {% trans "aucune enregistrée" %}
+                        {% endif %}
                     </li>
                     <li>
                         {{ profile.get_city }}

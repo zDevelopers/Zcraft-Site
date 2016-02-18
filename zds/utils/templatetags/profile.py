@@ -10,7 +10,7 @@ from zds.utils.models import CommentLike, CommentDislike
 
 register = template.Library()
 
-perms = {'forum.change_post': {}}
+states = {}
 
 
 @register.filter('profile')
@@ -33,6 +33,9 @@ def user(user_pk):
 
 @register.filter('state')
 def state(current_user):
+    if current_user.pk in states:
+        return states[current_user.pk]
+
     try:
         user_profile = current_user.profile
         if user_profile.is_god():
@@ -43,17 +46,19 @@ def state(current_user):
             user_state = 'BAN'
         elif not user_profile.can_write_now():
             user_state = 'LS'
-        elif current_user.pk in perms['forum.change_post'] and perms['forum.change_post'][current_user.pk]:
+        elif user_profile.is_admin():
+            user_state = 'ADMIN'
+        elif user_profile.is_staff():
             user_state = 'STAFF'
-        elif current_user.pk not in perms['forum.change_post']:
-            perms['forum.change_post'][current_user.pk] = current_user.has_perm('forum.change_post')
-            user_state = None
-            if perms['forum.change_post'][current_user.pk]:
-                user_state = 'STAFF'
+        elif user_profile.is_animator():
+            user_state = 'ANIMATOR'
         else:
             user_state = None
     except Profile.DoesNotExist:
         user_state = None
+
+    print("State retrieved for {}: {}".format(current_user.username, user_state))
+
     return user_state
 
 

@@ -189,6 +189,7 @@ INSTALLED_APPS = (
 
     # Zcraft-specific code
     'zcraft.topbar',
+    'zcraft.import',
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -402,15 +403,15 @@ ZDS_APP = {
         'dns': u"zcraft.fr",
         'email_contact': u"contact@zcraft.fr",
         'email_noreply': u"noreply@zcraft.fr",
-        'repository': u"https://github.com/zestedesavoir/zds-site",
-        'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
+        'repository': u"https://github.com/zDevelopers/zcraft-site/",
+        'bugtracker': u"https://github.com/zDevelopers/zcraft-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
         'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
         'short_description': u"",
-        'long_description': u"Zeste de Savoir est un site de partage de connaissances "
-                            u"sur lequel vous trouverez des tutoriels de tous niveaux, "
-                            u"des articles et des forums d'entraide animés par et pour "
-                            u"la communauté.",
+        'long_description': u"Zcraft est une communauté initialement autour d'un serveur "
+                            u"Minecraft, mais qui a depuis très largement dépassé ce seul "
+                            u"état pour être une communauté soudée, accueillante, et désireuse "
+                            u"de membres de qualité, matures.",
         'association': {
             'name': u"Zeste de Savoir",
             'fee': u"20 €",
@@ -449,22 +450,27 @@ ZDS_APP = {
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
         'social': {
-            'facebook': u'https://www.facebook.com/ZesteDeSavoir',
-            'twitter': u'https://twitter.com/ZesteDeSavoir',
-            'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
+            'facebook': u'https://www.facebook.com/Zcraft.fr',
+            'twitter': u'https://twitter.com/Zcraft_FR',
+            'googleplus': u''
         },
         'cnil': u"1771020",
     },
     'member': {
-        'bot_account': u"V'eh Syhss",
-        'anonymous_account': u"anonymous",
-        'external_account': u"external",
+        'bot_account': u"Moh-Ripl'Ey",
+        'anonymous_account': u"Anonyme",
+        'external_account': u"Auteur externe",
         'bot_group': u'bot',
         'god_group': u'god',
+        'member_group': u'member',
+        'animator_group': u'animator',
+        'staff_group': u'staff',
+        'admin_group': u'admin',
         'members_per_page': 100,
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
+        'avatars_gallery': 'Avatars'
     },
     'article': {
         'home_number': 4,

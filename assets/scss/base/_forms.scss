@@ -51,6 +51,12 @@
         color: #C0392B;
     }
 
+    select.selectmultiple {
+        width: 50%;
+        height: 200px;
+        overflow: auto;
+    }
+
     input,
     textarea {
         border: 1px solid #D2D5D6;
