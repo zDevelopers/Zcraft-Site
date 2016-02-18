@@ -14,9 +14,14 @@ from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 
 import pygeoip
+from django.utils.translation import ugettext_lazy as _
+from easy_thumbnails.files import get_thumbnailer
 from zds.forum.models import Post, Topic
+from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.managers import ProfileManager
+from zds.settings import ZDS_APP
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.utils import slugify
 from zds.utils.models import Alert
 from importlib import import_module
 
@@ -46,6 +51,8 @@ class Profile(models.Model):
         max_length=39,
         blank=True,
         null=True)
+
+    migrated = models.BooleanField('Compte migré après l\'import depuis FluxBB', default=True)
 
     site = models.CharField('Site internet', max_length=2000, blank=True)
     title = models.CharField('Titre', max_length=250, blank=True)
@@ -102,17 +109,32 @@ class Profile(models.Model):
     def __unicode__(self):
         return self.user.username
 
+    def in_group(self, group_name):
+        """
+        Checks the user is in the given group
+        :param group_name: The group name
+        """
+        return group_name in [g.name for g in self.user.groups.all()]
+
     def is_private(self):
-        """checks the user can display his stats"""
-        user_groups = self.user.groups.all()
-        user_group_names = [g.name for g in user_groups]
-        return settings.ZDS_APP['member']['bot_group'] in user_group_names
+        """Checks the user can display his stats"""
+        return self.in_group(settings.ZDS_APP['member']['bot_group'])
 
     def is_god(self):
         """Checks if the user must be displayed as a god"""
-        user_groups = self.user.groups.all()
-        user_group_names = [g.name for g in user_groups]
-        return settings.ZDS_APP['member']['god_group'] in user_group_names
+        return self.in_group(settings.ZDS_APP['member']['god_group'])
+
+    def is_admin(self):
+        """Checks if the user must be displayed as an admin"""
+        return self.in_group(settings.ZDS_APP['member']['admin_group'])
+
+    def is_staff(self):
+        """Checks if the user must be displayed as a staff member"""
+        return self.in_group(settings.ZDS_APP['member']['staff_group'])
+
+    def is_animator(self):
+        """Checks if the user must be displayed as an animator"""
+        return self.in_group(settings.ZDS_APP['member']['animator_group'])
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
@@ -125,23 +147,25 @@ class Profile(models.Model):
         providers.
         :return: The city and the country name of this profile.
         """
-        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
-        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
+        if self.last_ip_address:
+            # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have
+            # FIXME: length < 16
+            # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
+            if len(self.last_ip_address) <= 16:
+                gic = pygeoip.GeoIP(
+                    os.path.join(
+                        settings.GEOIP_PATH,
+                        'GeoLiteCity.dat'))
+            else:
+                gic = pygeoip.GeoIP(
+                    os.path.join(
+                        settings.GEOIP_PATH,
+                        'GeoLiteCityv6.dat'))
 
-        geo = gic.record_by_addr(self.last_ip_address)
+            geo = gic.record_by_addr(self.last_ip_address)
 
-        if geo is not None:
-            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+            if geo is not None:
+                return u'{0}, {1}'.format(geo['city'], geo['country_name'])
         return ''
 
     def get_avatar_url(self):
@@ -160,12 +184,50 @@ class Profile(models.Model):
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
                 md5(self.user.email.lower().encode("utf-8")).hexdigest())
 
+    def set_avatar_from_file(self, avatar, filename='avatar.png'):
+        """
+        Updates the avatar of this user from a file, creating a gallery on his account
+        if needed and adding the avatar to the gallery.
+        :param avatar: The avatar file (file-like object).
+        :param filename: The file name, including the type extension.
+        """
+        user_gallery = UserGallery.objects.filter(gallery__title=ZDS_APP['gallery']['avatars_gallery'], user=self.user)\
+            .first()
+
+        if not user_gallery:
+            gallery = Gallery()
+            gallery.title = ZDS_APP['gallery']['avatars_gallery']
+            gallery.subtitle = ''
+            gallery.slug = slugify(ZDS_APP['gallery']['avatars_gallery'])
+            gallery.pubdate = datetime.now()
+            gallery.save()
+
+            user_gallery = UserGallery()
+            user_gallery.gallery = gallery
+            user_gallery.mode = GALLERY_WRITE
+            user_gallery.user = self.user
+            user_gallery.save()
+
+        image = Image()
+        image.title = _('Avatar')
+        image.legend = _('Avatar importé')
+        image.gallery = user_gallery.gallery
+        image.physical = get_thumbnailer(avatar, relative_name=filename)
+        image.pubdate = datetime.now()
+        image.save()
+
+        self.avatar_url = image.get_absolute_url()
+
     def get_title(self):
         if self.title:
             return self.title
         else:
             posts_count = self.get_post_count_as_staff()
-            if posts_count > 2000:
+            if posts_count > 10000:
+                return "Dwarf Fortress 4 ever"
+            elif posts_count > 9000:
+                return "Over nine thousand!!!!"
+            elif posts_count > 1501:
                 return "Real Poney"
             elif posts_count > 1000:
                 return "Little Poney"
